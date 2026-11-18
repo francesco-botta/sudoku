@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sudoku">
+<title>Sudoku</title>
+<meta name="theme-color" content="#E8ECF1">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ---------- themes ---------- */
+:root{
+  --page:#E8ECF1;--surface:#F7F9FB;--ink:#18212D;--dim:#525E6F;--line:#CDD4DD;
+  --cell:#FCFDFE;--grid-thin:#B9C2CE;--grid-thick:#2A3442;--given:#18212D;--pen:#1A56C4;--note:#4A5768;
+  --sel:#FFE597;--peer:#E9EDF3;--same:#D9E6FB;--err:#C4202E;--err-bg:#FBDADD;--key:#E2E7EE;--hint:#D6F0DD;--hint-ring:#1E8A45;
+}
+[data-theme="linen"]{
+  --page:#ECE4D6;--surface:#F6F0E3;--ink:#2E261D;--dim:#5F5446;--line:#D6CBB8;
+  --cell:#FBF7EC;--grid-thin:#CFC4B2;--grid-thick:#4A3F33;--given:#2E261D;--pen:#0A655B;--note:#5F5446;
+  --sel:#FBE8B0;--peer:#F2EBDD;--same:#DDEDE7;--err:#B3261E;--err-bg:#F6D5CF;--key:#E7DFCF;--hint:#DDEBC6;--hint-ring:#4E7A1E;
+}
+[data-theme="sage"]{
+  --page:#DCE6DE;--surface:#EEF4EF;--ink:#1E2B25;--dim:#495A52;--line:#C2D0C6;
+  --cell:#F7FAF7;--grid-thin:#B5C5BA;--grid-thick:#2C4037;--given:#1E2B25;--pen:#98400F;--note:#4A5B53;
+  --sel:#FCE9B4;--peer:#E7EFE9;--same:#F9E6D9;--err:#B3202C;--err-bg:#F7D6D8;--key:#D8E3DC;--hint:#DFF0F8;--hint-ring:#1F6F99;
+}
+[data-theme="contrast"]{
+  --page:#FFFFFF;--surface:#FFFFFF;--ink:#000000;--dim:#3D3D3D;--line:#9A9A9A;
+  --cell:#FFFFFF;--grid-thin:#8C8C8C;--grid-thick:#000000;--given:#000000;--pen:#0038C7;--note:#2B2B2B;
+  --sel:#FFEC8A;--peer:#ECECEC;--same:#E0EAFF;--err:#C40018;--err-bg:#FFD9DE;--key:#E6E6E6;--hint:#D2F5D8;--hint-ring:#00702A;
+}
+[data-theme="dusk"]{
+  --page:#121926;--surface:#1A2333;--ink:#E8EDF5;--dim:#94A1B5;--line:#2F3A4E;
+  --cell:#1B2434;--grid-thin:#34405A;--grid-thick:#8793A8;--given:#E8EDF5;--pen:#8FBCFF;--note:#B4BFD0;
+  --sel:#2A3D63;--peer:#222C3F;--same:#2A3B5C;--err:#FF7B86;--err-bg:#4A2029;--key:#253044;--hint:#1F4634;--hint-ring:#5FD08A;
+}
+[data-theme="chalk"]{
+  --page:#1D2B26;--surface:#24362F;--ink:#F0EEE2;--dim:#A3B5AB;--line:#3A4F46;
+  --cell:#24362F;--grid-thin:#3F564C;--grid-thick:#9DB0A6;--given:#F0EEE2;--pen:#FFD27A;--note:#C6D3CB;
+  --sel:#36524A;--peer:#2A3E36;--same:#324B41;--err:#FF8A7A;--err-bg:#55302B;--key:#2F453C;--hint:#25405A;--hint-ring:#7FC4F0;
+}
+[data-theme="black"]{
+  --page:#000000;--surface:#101012;--ink:#F2F2F3;--dim:#9A9AA0;--line:#2A2A2E;
+  --cell:#0B0B0D;--grid-thin:#2C2C31;--grid-thick:#7A7A80;--given:#F2F2F3;--pen:#6FD0FF;--note:#B6B6BD;
+  --sel:#23364F;--peer:#17171B;--same:#1E2A38;--err:#FF6B6B;--err-bg:#3D1717;--key:#1B1B1F;--hint:#16382A;--hint-ring:#4FD08A;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--page);color:var(--ink);font-family:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#app{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);height:100vh;height:100dvh;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column}
+.screen[hidden]{display:none}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
+.icon-btn svg{width:24px;height:24px}
+.icon-btn:active{background:var(--key)}
+
+/* ---------- home ---------- */
+#home{overflow-y:auto;padding:22px 16px 28px}
+.home-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+h1{font-size:42px;font-weight:700;letter-spacing:-0.025em;margin:0;line-height:1}
+.tag{color:var(--dim);margin:8px 0 0;font-size:15px;line-height:1.35}
+.resume{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:22px}
+.resume:active{background:var(--key)}
+.thumb{width:84px;height:84px;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);gap:1px;background:var(--grid-thin);border:1.5px solid var(--grid-thick);flex:none}
+.thumb i{background:var(--cell)}
+.thumb i.g{background:var(--given)}
+.thumb i.u{background:var(--pen)}
+.resume b{display:block;font-size:19px;font-weight:700}
+.resume span{display:block;color:var(--dim);font-size:15px;margin-top:3px}
+h2.section{font-size:15px;font-weight:600;color:var(--dim);margin:26px 0 0;padding:0 4px 8px}
+.levels{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.level{display:grid;grid-template-columns:26px 1fr auto;gap:14px;align-items:center;width:100%;text-align:left;padding:13px 4px;border-bottom:1px solid var(--line)}
+.level:active{background:var(--surface)}
+.glyph{width:26px;height:26px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px}
+.glyph i{border-radius:2px;background:var(--line)}
+.glyph i.on{background:var(--given)}
+.level b{display:block;font-size:19px;font-weight:700}
+.level span{display:block;color:var(--dim);font-size:14.5px;line-height:1.3;margin-top:2px}
+.level em{font-style:normal;color:var(--dim);font-size:14px;text-align:right;white-space:nowrap}
+.textlink{display:inline-block;margin:18px 4px 0;color:var(--pen);font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- game ---------- */
+.bar{display:flex;align-items:center;gap:2px;padding:6px 6px 2px}
+.bar-mid{flex:1;min-width:0;padding-left:2px}
+.bar-level{font-weight:700;font-size:18px;line-height:1.15}
+.bar-sub{font-size:13.5px;color:var(--dim);min-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-sub.warn{color:var(--err)}
+.timer{font-size:18px;font-weight:600;padding:0 4px;min-width:60px;text-align:right}
+.board-wrap{flex:1 1 0;min-height:0;container-type:size;display:grid;place-items:center;margin:4px 10px;position:relative}
+.board{width:min(100cqw,100cqh);height:min(100cqw,100cqh);container-type:inline-size;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;background:var(--grid-thick);border:2px solid var(--grid-thick);border-radius:5px;overflow:hidden}
+.box{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:1px;background:var(--grid-thin);min-width:0;min-height:0}
+.cell{background:var(--cell);display:grid;place-items:center;position:relative;font-size:6.8cqw;line-height:1;min-width:0;min-height:0;overflow:hidden}
+.cell.given{color:var(--given);font-weight:800}
+.cell.user{color:var(--given);font-weight:300}
+[data-digits="colour"] .cell.given{font-weight:700}
+[data-digits="colour"] .cell.user{color:var(--pen);font-weight:500}
+.cell.peer{background:var(--peer)}
+.cell.same{background:var(--same)}
+.cell.err{color:var(--err);background:var(--err-bg)}
+.cell.given.err{color:var(--given)}
+.cell.sel{background:var(--sel);box-shadow:inset 0 0 0 2px var(--pen)}
+.cell.h-unit{background:var(--hint)}
+.cell.h-cell{background:var(--hint);box-shadow:inset 0 0 0 2px var(--hint-ring)}
+.cell.h-pivot{box-shadow:inset 0 0 0 2px var(--hint-ring),inset 0 0 0 4px var(--hint),inset 0 0 0 6px var(--hint-ring)}
+.cell.h-elim{box-shadow:inset 0 0 0 2px var(--err)}
+.cell.h-target{background:var(--hint);box-shadow:inset 0 0 0 3px var(--hint-ring)}
+.cell.h-target::after{content:"";position:absolute;inset:26%;border:2px solid var(--hint-ring);border-radius:50%}
+.notes{position:absolute;inset:3%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);font-size:3.2cqw;color:var(--note);font-weight:500}
+.notes span{display:grid;place-items:center}
+.notes span.hi{color:var(--cell);background:var(--pen);border-radius:22%;font-weight:700}
+@keyframes pulse{0%{background:var(--cell)}35%{background:var(--same)}100%{background:var(--cell)}}
+.cell.fx-unit{animation:pulse .5s ease-out both;animation-delay:calc(var(--d,0)*28ms)}
+@keyframes wave{0%{transform:scale(1)}30%{transform:scale(.82);background:var(--sel)}100%{transform:scale(1)}}
+.cell.fx-win{animation:wave .6s ease-out both;animation-delay:calc(var(--d,0)*42ms)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6%)}75%{transform:translateX(6%)}}
+.cell.fx-bad{animation:shake .22s linear 2}
+.cover{position:absolute;inset:0;background:var(--page);display:grid;place-items:center;text-align:center;z-index:3}
+.cover[hidden]{display:none}
+.cover p{margin:0 0 14px;font-size:20px;font-weight:700}
+.cover small{display:block;color:var(--dim);font-size:15px;font-weight:400;margin-top:6px}
+.spinner{width:34px;height:34px;margin:0 auto 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.spinner i{background:var(--grid-thick);border-radius:2px;animation:blink 1.2s infinite both}
+.spinner i:nth-child(2),.spinner i:nth-child(4){animation-delay:.12s}
+.spinner i:nth-child(3),.spinner i:nth-child(5),.spinner i:nth-child(7){animation-delay:.24s}
+.spinner i:nth-child(6),.spinner i:nth-child(8){animation-delay:.36s}
+.spinner i:nth-child(9){animation-delay:.48s}
+@keyframes blink{0%,60%,100%{opacity:.15}30%{opacity:1}}
+
+.controls{padding:6px 10px 12px}
+.tools{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.tool{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0 6px;border-radius:10px;font-size:12.5px;color:var(--dim);position:relative}
+.tool svg{width:24px;height:24px;color:var(--ink)}
+.tool:active{background:var(--key)}
+.tool.on{background:var(--pen);color:var(--cell)}
+.tool.on svg{color:var(--cell)}
+.tool:disabled{opacity:.32}
+.pad{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.key{height:clamp(54px,9.5vh,76px);border-radius:10px;background:var(--key);color:var(--pen);font-size:28px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1;border:1.5px solid transparent}
+.key small{font-size:11.5px;color:var(--dim);font-weight:500;line-height:1}
+.key:active{background:var(--same)}
+.key.armed{background:var(--pen);color:var(--cell)}
+.key.armed small{color:var(--cell)}
+.key.done{opacity:.25}
+.pad.noting .key{background:transparent;border:1.5px dashed var(--pen);font-size:22px}
+.pad.noting .key.armed{background:var(--pen)}
+.hintbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin:6px 10px 12px}
+.hintbox h3{margin:0 0 6px;font-size:18px}
+.hintbox h3 + .btns{margin-top:10px}
+.hintbox p{margin:0 0 12px;font-size:16px;line-height:1.4;color:var(--ink)}
+.hintbox .btns{display:flex;gap:8px;flex-wrap:wrap}
+.hintbox .btn{flex:1 1 auto;width:auto;padding:11px 14px;font-size:16px}
+
+/* ---------- sheets ---------- */
+.backdrop{position:fixed;inset:0;background:rgba(8,12,18,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.backdrop[hidden]{display:none}
+.sheet{background:var(--surface);color:var(--ink);width:100%;max-width:520px;max-height:90vh;max-height:90dvh;overflow-y:auto;border-radius:18px 18px 0 0;padding:6px 18px calc(26px + env(safe-area-inset-bottom));animation:rise .18s ease-out}
+@keyframes rise{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;position:sticky;top:-6px;background:var(--surface);padding:10px 0 6px;margin-top:-6px;z-index:1}
+.sheet h2{font-size:23px;margin:0;letter-spacing:-0.01em}
+.sheet h3{font-size:15px;font-weight:600;color:var(--dim);margin:22px 0 2px}
+.sheet p{font-size:16px;line-height:1.45;margin:8px 0}
+.sheet p.dim{color:var(--dim);font-size:15px}
+.btn{display:block;width:100%;padding:14px 16px;border-radius:12px;font-weight:600;font-size:17px;text-align:center;background:var(--key);color:var(--ink);margin-top:10px}
+.btn.primary{background:var(--given);color:var(--cell)}
+.btn.danger{color:var(--err)}
+.btn:active{opacity:.75}
+.menu-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 2px;border-bottom:1px solid var(--line);font-size:17px}
+.menu-item svg{width:22px;height:22px;flex:none}
+.menu-item:last-child{border-bottom:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row > div:first-child{min-width:0}
+.row b{display:block;font-weight:600;font-size:16.5px}
+.row span{display:block;color:var(--dim);font-size:14px;line-height:1.3;margin-top:2px}
+.switch{width:52px;height:32px;border-radius:16px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--cell);transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch[aria-checked="true"]{background:var(--pen)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.seg{display:flex;background:var(--key);border-radius:11px;padding:3px;margin:8px 0 4px}
+.seg button{flex:1;padding:9px 6px;border-radius:8px;font-size:15px;font-weight:500;color:var(--dim)}
+.seg button[aria-pressed="true"]{background:var(--cell);color:var(--ink);font-weight:700;box-shadow:0 0 0 1px var(--line)}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0 4px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:13.5px;color:var(--dim);padding:6px 0;border-radius:10px}
+.swatch i{width:46px;height:46px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:20px;border:2px solid transparent;outline:1px solid var(--line)}
+.swatch[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.swatch[aria-pressed="true"] i{outline:3px solid var(--pen);outline-offset:2px}
+.pens{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 4px}
+.pens button{width:40px;height:40px;border-radius:50%;border:2px solid var(--surface);outline:1px solid var(--line)}
+.pens button[aria-pressed="true"]{outline:3px solid var(--ink)}
+table.stats{width:100%;border-collapse:collapse;font-size:15px;margin-top:8px}
+table.stats th{font-weight:600;color:var(--dim);text-align:right;padding:6px 4px;font-size:13.5px;border-bottom:1px solid var(--line)}
+table.stats th:first-child,table.stats td:first-child{text-align:left;font-weight:700}
+table.stats td{text-align:right;padding:10px 4px;border-bottom:1px solid var(--line)}
+dl.facts{display:grid;grid-template-columns:1fr auto;gap:0;margin:10px 0 0}
+dl.facts dt,dl.facts dd{padding:10px 0;border-bottom:1px solid var(--line);margin:0;font-size:16.5px}
+dl.facts dt{color:var(--dim)}
+dl.facts dd{font-weight:700;text-align:right}
+ul.plain{margin:6px 0;padding-left:20px;font-size:15.5px;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:var(--given);color:var(--cell);padding:11px 16px;border-radius:12px;font-size:15.5px;font-weight:600;z-index:30;max-width:88vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0ms!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="home" class="screen">
+    <div class="home-top">
+      <div>
+        <h1>Sudoku</h1>
+        <p class="tag">No ads and no account. Your games stay on this device.</p>
+      </div>
+      <div style="display:flex">
+        <button class="icon-btn" id="home-stats" aria-label="Statistics"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button>
+        <button class="icon-btn" id="home-settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg></button>
+      </div>
+    </div>
+    <div id="resume-slot"></div>
+    <h2 class="section">New puzzle</h2>
+    <ul class="levels" id="levels"></ul>
+    <button class="textlink" id="home-how">How difficulty is measured</button>
+  </section>
+
+  <section id="game" class="screen" hidden>
+    <header class="bar">
+      <button class="icon-btn" id="g-back" aria-label="Back to menu"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="bar-mid"><div class="bar-level" id="g-level"></div><div class="bar-sub" id="g-sub"></div></div>
+      <div class="timer" id="g-timer" aria-label="Time"></div>
+      <button class="icon-btn" id="g-pause" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+      <button class="icon-btn" id="g-more" aria-label="Puzzle menu"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
+    </header>
+    <div class="board-wrap">
+      <div class="board" id="board" role="grid" aria-label="Sudoku board"></div>
+      <div class="cover" id="cover" hidden></div>
+    </div>
+    <div class="controls" id="controls">
+      <div class="tools">
+        <button class="tool" id="t-undo"><svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 010 12"/></svg>Undo</button>
+        <button class="tool" id="t-redo"><svg viewBox="0 0 24 24"><path d="M15 7l5 5-5 5"/><path d="M20 12H10a6 6 0 000 12"/></svg>Redo</button>
+        <button class="tool" id="t-erase"><svg viewBox="0 0 24 24"><path d="M8 19h12M5.5 15.5l9-9a2 2 0 012.8 0l2.2 2.2a2 2 0 010 2.8L12 19H8.5l-3-3a.4.4 0 010-.5z"/></svg>Erase</button>
+        <button class="tool" id="t-notes" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 012.8 0l.2.2a2 2 0 010 2.8L8 19l-4 1z"/><path d="M14.5 6.5l3 3"/></svg><span id="t-notes-label">Notes</span></button>
+        <button class="tool" id="t-hint"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/></svg>Hint</button>
+      </div>
+      <div class="pad" id="pad"></div>
+    </div>
+    <div class="hintbox" id="hintbox" hidden></div>
+  </section>
+</div>
+<div class="backdrop" id="backdrop" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script id="engine-src">
+/* Sudoku engine: generator, human-style logical solver/grader, brute-force verifier, variety check.
+   Runs unchanged on the page, in a Web Worker and in Node (for tests). */
+(function (root) {
+  'use strict';
+
+  // ---------- board geometry ----------
+  var ROW = [], COL = [], BOX = [], UNITS = [], PEERS = [], SEES = new Uint8Array(81 * 81);
+  (function () {
+    var i, j, u;
+    for (i = 0; i < 81; i++) { ROW[i] = (i / 9) | 0; COL[i] = i % 9; BOX[i] = ((ROW[i] / 3) | 0) * 3 + ((COL[i] / 3) | 0); }
+    for (u = 0; u < 27; u++) UNITS.push([]);
+    for (i = 0; i < 81; i++) { UNITS[ROW[i]].push(i); UNITS[9 + COL[i]].push(i); UNITS[18 + BOX[i]].push(i); }
+    for (i = 0; i < 81; i++) {
+      var p = [];
+      for (j = 0; j < 81; j++) {
+        if (j !== i && (ROW[i] === ROW[j] || COL[i] === COL[j] || BOX[i] === BOX[j])) { p.push(j); SEES[i * 81 + j] = 1; }
+      }
+      PEERS.push(p);
+    }
+  })();
+  var BC = new Uint8Array(512);
+  (function () { for (var i = 1; i < 512; i++) BC[i] = BC[i >> 1] + (i & 1); })();
+  function lowDigit(mask) { return 32 - Math.clz32(mask & -mask); }
+  function digitsOf(mask) { var a = []; for (var d = 1; d <= 9; d++) if (mask & (1 << (d - 1))) a.push(d); return a; }
+  function toArr(x) {
+    if (typeof x === 'string') { var a = new Uint8Array(81); for (var i = 0; i < 81; i++) { var ch = x.charCodeAt(i) - 48; a[i] = ch >= 1 && ch <= 9 ? ch : 0; } return a; }
+    return x;
+  }
+  function toStr(a) { var s = ''; for (var i = 0; i < 81; i++) s += a[i] || 0; return s; }
+
+  // ---------- random ----------
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function randomSeed() {
+    try {
+      var c = (typeof crypto !== 'undefined' && crypto.getRandomValues) ? crypto : null;
+      if (c) { var b = new Uint32Array(1); c.getRandomValues(b); return b[0]; }
+    } catch (e) { }
+    return (Math.random() * 4294967296) >>> 0;
+  }
+  function shuffle(arr, rng) {
+    for (var i = arr.length - 1; i > 0; i--) { var j = (rng() * (i + 1)) | 0; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+    return arr;
+  }
+
+  // ---------- candidate state ----------
+  function State(values) {
+    this.v = new Uint8Array(81); this.c = new Uint16Array(81); this.left = 81; this.bad = false;
+    var i;
+    for (i = 0; i < 81; i++) this.c[i] = 511;
+    for (i = 0; i < 81; i++) if (values[i]) {
+      if (!(this.c[i] & (1 << (values[i] - 1)))) this.bad = true;
+      this.set(i, values[i]);
+    }
+  }
+  State.prototype.set = function (i, d) {
+    this.v[i] = d; this.c[i] = 0; this.left--;
+    var nb = ~(1 << (d - 1)), p = PEERS[i];
+    for (var k = 0; k < 20; k++) this.c[p[k]] &= nb;
+  };
+
+  // ---------- human techniques ----------
+  // A step is either a placement {tech, cell, digit, unit} or an elimination
+  // {tech, elim:[[cell,mask]...], cells:[...], digits:mask, unit, unit2}.
+  function tFull(s) {
+    for (var u = 0; u < 27; u++) {
+      var cells = UNITS[u], n = 0, pos = -1;
+      for (var k = 0; k < 9; k++) if (!s.v[cells[k]]) { n++; pos = cells[k]; }
+      if (n === 1 && BC[s.c[pos]] === 1) return { tech: 'full', cell: pos, digit: lowDigit(s.c[pos]), unit: u };
+    }
+    return null;
+  }
+  var HS_ORDER = [18, 19, 20, 21, 22, 23, 24, 25, 26, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+  function tHidden(s) {
+    for (var o = 0; o < 27; o++) {
+      var u = HS_ORDER[o], cells = UNITS[u];
+      for (var d = 1; d <= 9; d++) {
+        var bit = 1 << (d - 1), n = 0, pos = -1;
+        for (var k = 0; k < 9; k++) if (s.c[cells[k]] & bit) { n++; pos = cells[k]; if (n > 1) break; }
+        if (n === 1) return { tech: 'hidden', cell: pos, digit: d, unit: u };
+      }
+    }
+    return null;
+  }
+  function tNaked(s) {
+    for (var i = 0; i < 81; i++) if (!s.v[i] && BC[s.c[i]] === 1) return { tech: 'naked', cell: i, digit: lowDigit(s.c[i]), unit: -1 };
+    return null;
+  }
+  function tPointing(s) {
+    for (var b = 0; b < 9; b++) {
+      var cells = UNITS[18 + b];
+      for (var d = 1; d <= 9; d++) {
+        var bit = 1 << (d - 1), hit = [], k;
+        for (k = 0; k < 9; k++) if (s.c[cells[k]] & bit) hit.push(cells[k]);
+        if (hit.length < 2 || hit.length > 3) continue;
+        var sameRow = true, sameCol = true;
+        for (k = 1; k < hit.length; k++) { if (ROW[hit[k]] !== ROW[hit[0]]) sameRow = false; if (COL[hit[k]] !== COL[hit[0]]) sameCol = false; }
+        if (!sameRow && !sameCol) continue;
+        var line = sameRow ? ROW[hit[0]] : 9 + COL[hit[0]], lc = UNITS[line], elim = [];
+        for (k = 0; k < 9; k++) if (BOX[lc[k]] !== b && (s.c[lc[k]] & bit)) elim.push([lc[k], bit]);
+        if (elim.length) return { tech: 'pointing', elim: elim, cells: hit, digits: bit, unit: 18 + b, unit2: line };
+      }
+    }
+    return null;
+  }
+  function tClaiming(s) {
+    for (var u = 0; u < 18; u++) {
+      var cells = UNITS[u];
+      for (var d = 1; d <= 9; d++) {
+        var bit = 1 << (d - 1), hit = [], k;
+        for (k = 0; k < 9; k++) if (s.c[cells[k]] & bit) hit.push(cells[k]);
+        if (hit.length < 2 || hit.length > 3) continue;
+        var same = true;
+        for (k = 1; k < hit.length; k++) if (BOX[hit[k]] !== BOX[hit[0]]) same = false;
+        if (!same) continue;
+        var bx = 18 + BOX[hit[0]], bc = UNITS[bx], elim = [];
+        for (k = 0; k < 9; k++) {
+          var c = bc[k];
+          if ((u < 9 ? ROW[c] !== u : COL[c] !== u - 9) && (s.c[c] & bit)) elim.push([c, bit]);
+        }
+        if (elim.length) return { tech: 'claiming', elim: elim, cells: hit, digits: bit, unit: u, unit2: bx };
+      }
+    }
+    return null;
+  }
+  function combos(n, k, fn) { // calls fn(indexArray) for every k-subset of 0..n-1; stops when fn returns truthy
+    var idx = [], r;
+    function rec(start, depth) {
+      if (depth === k) return fn(idx);
+      for (var i = start; i <= n - (k - depth); i++) { idx[depth] = i; r = rec(i + 1, depth + 1); if (r) return r; }
+      return null;
+    }
+    return rec(0, 0);
+  }
+  function nakedSubset(n, tech) {
+    return function (s) {
+      for (var u = 0; u < 27; u++) {
+        var cells = UNITS[u], empt = [], cand = [], k;
+        for (k = 0; k < 9; k++) if (!s.v[cells[k]]) { empt.push(cells[k]); }
+        if (empt.length <= n) continue;
+        for (k = 0; k < empt.length; k++) if (BC[s.c[empt[k]]] <= n && s.c[empt[k]]) cand.push(empt[k]);
+        if (cand.length < n) continue;
+        var res = combos(cand.length, n, function (ix) {
+          var m = 0, j;
+          for (j = 0; j < n; j++) m |= s.c[cand[ix[j]]];
+          if (BC[m] !== n) return null;
+          var set = [], elim = [];
+          for (j = 0; j < n; j++) set.push(cand[ix[j]]);
+          for (j = 0; j < empt.length; j++) if (set.indexOf(empt[j]) < 0 && (s.c[empt[j]] & m)) elim.push([empt[j], s.c[empt[j]] & m]);
+          return elim.length ? { tech: tech, elim: elim, cells: set, digits: m, unit: u } : null;
+        });
+        if (res) return res;
+      }
+      return null;
+    };
+  }
+  function hiddenSubset(n, tech) {
+    return function (s) {
+      for (var u = 0; u < 27; u++) {
+        var cells = UNITS[u], ds = [], pos = [], empties = 0, k, d;
+        for (k = 0; k < 9; k++) if (!s.v[cells[k]]) empties++;
+        if (empties <= n) continue;
+        for (d = 1; d <= 9; d++) {
+          var bit = 1 << (d - 1), pm = 0;
+          for (k = 0; k < 9; k++) if (s.c[cells[k]] & bit) pm |= 1 << k;
+          if (pm && BC[pm] <= n) { ds.push(d); pos.push(pm); }
+        }
+        if (ds.length < n) continue;
+        var res = combos(ds.length, n, function (ix) {
+          var pm = 0, dm = 0, j;
+          for (j = 0; j < n; j++) { pm |= pos[ix[j]]; dm |= 1 << (ds[ix[j]] - 1); }
+          if (BC[pm] !== n) return null;
+          var set = [], elim = [];
+          for (j = 0; j < 9; j++) if (pm & (1 << j)) {
+            set.push(cells[j]);
+            var extra = s.c[cells[j]] & ~dm;
+            if (extra) elim.push([cells[j], extra]);
+          }
+          return elim.length ? { tech: tech, elim: elim, cells: set, digits: dm, unit: u } : null;
+        });
+        if (res) return res;
+      }
+      return null;
+    };
+  }
+  function fish(n, tech) {
+    return function (s) {
+      for (var d = 1; d <= 9; d++) {
+        var bit = 1 << (d - 1);
+        for (var orient = 0; orient < 2; orient++) {
+          var lines = [], masks = [], L, k;
+          for (L = 0; L < 9; L++) {
+            var cells = UNITS[orient * 9 + L], m = 0;
+            for (k = 0; k < 9; k++) if (s.c[cells[k]] & bit) m |= 1 << k;
+            if (BC[m] >= 2 && BC[m] <= n) { lines.push(L); masks.push(m); }
+          }
+          if (lines.length < n) continue;
+          var res = combos(lines.length, n, function (ix) {
+            var m = 0, j, q;
+            for (j = 0; j < n; j++) m |= masks[ix[j]];
+            if (BC[m] !== n) return null;
+            var base = [], cover = [], set = [], elim = [];
+            for (j = 0; j < n; j++) base.push(lines[ix[j]]);
+            for (q = 0; q < 9; q++) if (m & (1 << q)) {
+              cover.push((1 - orient) * 9 + q);
+              for (var L2 = 0; L2 < 9; L2++) {
+                var cell = orient === 0 ? L2 * 9 + q : q * 9 + L2;
+                if (!(s.c[cell] & bit)) continue;
+                if (base.indexOf(L2) >= 0) set.push(cell); else elim.push([cell, bit]);
+              }
+            }
+            return elim.length ? { tech: tech, elim: elim, cells: set, digits: bit, unit: orient * 9 + base[0], units: base.map(function (x) { return orient * 9 + x; }), covers: cover } : null;
+          });
+          if (res) return res;
+        }
+      }
+      return null;
+    };
+  }
+  function tXYWing(s) {
+    for (var p = 0; p < 81; p++) {
+      if (s.v[p] || BC[s.c[p]] !== 2) continue;
+      var pc = s.c[p], pe = PEERS[p], bi = [], k;
+      for (k = 0; k < 20; k++) { var q = pe[k]; if (!s.v[q] && BC[s.c[q]] === 2 && s.c[q] !== pc && (s.c[q] & pc)) bi.push(q); }
+      for (var a = 0; a < bi.length; a++) for (var b = a + 1; b < bi.length; b++) {
+        var ca = s.c[bi[a]], cb = s.c[bi[b]];
+        if ((ca ^ cb) !== pc) continue;
+        var z = ca & cb; if (BC[z] !== 1 || (z & pc)) continue;
+        var elim = [];
+        for (var i = 0; i < 81; i++) if ((s.c[i] & z) && i !== p && i !== bi[a] && i !== bi[b] && SEES[i * 81 + bi[a]] && SEES[i * 81 + bi[b]]) elim.push([i, z]);
+        if (elim.length) return { tech: 'xywing', elim: elim, cells: [p, bi[a], bi[b]], pivots: [p], digits: z, unit: -1 };
+      }
+    }
+    return null;
+  }
+  function tXYZWing(s) {
+    for (var p = 0; p < 81; p++) {
+      if (s.v[p] || BC[s.c[p]] !== 3) continue;
+      var pc = s.c[p], pe = PEERS[p], bi = [], k;
+      for (k = 0; k < 20; k++) { var q = pe[k]; if (!s.v[q] && BC[s.c[q]] === 2 && (s.c[q] & ~pc) === 0) bi.push(q); }
+      for (var a = 0; a < bi.length; a++) for (var b = a + 1; b < bi.length; b++) {
+        var ca = s.c[bi[a]], cb = s.c[bi[b]];
+        if (ca === cb || (ca | cb) !== pc) continue;
+        var z = ca & cb; if (BC[z] !== 1) continue;
+        var elim = [];
+        for (var i = 0; i < 81; i++) if ((s.c[i] & z) && i !== p && i !== bi[a] && i !== bi[b] && SEES[i * 81 + p] && SEES[i * 81 + bi[a]] && SEES[i * 81 + bi[b]]) elim.push([i, z]);
+        if (elim.length) return { tech: 'xyzwing', elim: elim, cells: [p, bi[a], bi[b]], pivots: [p], digits: z, unit: -1 };
+      }
+    }
+    return null;
+  }
+
+  // W-Wing: two cells holding the same pair {x,y} that do not see each other, joined by a row, column or box
+  // in which x has only two places, one seeing each cell. One of the two cells must then be y.
+  function tWWing(s) {
+    var bi = [], i;
+    for (i = 0; i < 81; i++) if (!s.v[i] && BC[s.c[i]] === 2) bi.push(i);
+    for (var x = 0; x < bi.length; x++) for (var y = x + 1; y < bi.length; y++) {
+      var A = bi[x], B = bi[y];
+      if (s.c[A] !== s.c[B] || SEES[A * 81 + B]) continue;
+      var ds = digitsOf(s.c[A]);
+      for (var k = 0; k < 2; k++) {
+        var lb = 1 << (ds[k] - 1), ob = 1 << (ds[1 - k] - 1);
+        for (var u = 0; u < 27; u++) {
+          var cells = UNITS[u], hit = [];
+          for (var q = 0; q < 9; q++) if (s.c[cells[q]] & lb) hit.push(cells[q]);
+          if (hit.length !== 2) continue;
+          var P = hit[0], Q = hit[1];
+          if (P === A || P === B || Q === A || Q === B) continue;
+          if (!((SEES[P * 81 + A] && SEES[Q * 81 + B]) || (SEES[P * 81 + B] && SEES[Q * 81 + A]))) continue;
+          var elim = [];
+          for (i = 0; i < 81; i++) if ((s.c[i] & ob) && i !== A && i !== B && SEES[i * 81 + A] && SEES[i * 81 + B]) elim.push([i, ob]);
+          if (elim.length) return { tech: 'wwing', elim: elim, cells: [A, B, P, Q], pivots: [A, B], digits: ob, link: lb, unit: -1 };
+        }
+      }
+    }
+    return null;
+  }
+  // Simple colouring: for one digit, link every row, column or box where it has exactly two places.
+  // Each linked group splits into two colours; one colour is all true and the other all false.
+  function tColouring(s) {
+    for (var d = 1; d <= 9; d++) {
+      var bit = 1 << (d - 1), adj = [], i, u, k;
+      for (i = 0; i < 81; i++) adj.push(null);
+      for (u = 0; u < 27; u++) {
+        var cells = UNITS[u], hit = [];
+        for (k = 0; k < 9; k++) if (s.c[cells[k]] & bit) hit.push(cells[k]);
+        if (hit.length !== 2) continue;
+        (adj[hit[0]] || (adj[hit[0]] = [])).push(hit[1]);
+        (adj[hit[1]] || (adj[hit[1]] = [])).push(hit[0]);
+      }
+      var colour = new Int8Array(81); for (i = 0; i < 81; i++) colour[i] = -1;
+      for (var st = 0; st < 81; st++) {
+        if (!adj[st] || colour[st] >= 0) continue;
+        var groups = [[], []], queue = [st]; colour[st] = 0;
+        while (queue.length) {
+          var c = queue.shift(); groups[colour[c]].push(c);
+          for (k = 0; k < adj[c].length; k++) { var n = adj[c][k]; if (colour[n] < 0) { colour[n] = 1 - colour[c]; queue.push(n); } }
+        }
+        if (groups[0].length + groups[1].length < 4) continue;
+        var elim = [], g, a, b, wrap = -1;
+        for (g = 0; g < 2 && wrap < 0; g++) for (a = 0; a < groups[g].length && wrap < 0; a++) for (b = a + 1; b < groups[g].length; b++)
+          if (SEES[groups[g][a] * 81 + groups[g][b]]) { wrap = g; break; }
+        if (wrap >= 0) groups[wrap].forEach(function (cc) { elim.push([cc, bit]); });
+        else for (i = 0; i < 81; i++) {
+          if (!(s.c[i] & bit) || groups[0].indexOf(i) >= 0 || groups[1].indexOf(i) >= 0) continue;
+          var s0 = false, s1 = false;
+          for (k = 0; k < groups[0].length; k++) if (SEES[i * 81 + groups[0][k]]) { s0 = true; break; }
+          for (k = 0; k < groups[1].length && s0; k++) if (SEES[i * 81 + groups[1][k]]) { s1 = true; break; }
+          if (s0 && s1) elim.push([i, bit]);
+        }
+        if (elim.length) return { tech: 'colouring', elim: elim, cells: groups[0].concat(groups[1]), pivots: groups[1].slice(), digits: bit, wrap: wrap >= 0, unit: -1 };
+      }
+    }
+    return null;
+  }
+  // XY-Chain: a chain of two-candidate cells, each sharing a digit with the next. One end or the other must hold z.
+  function tXYChain(s) {
+    var isBi = new Uint8Array(81), bi = [], i;
+    for (i = 0; i < 81; i++) if (!s.v[i] && BC[s.c[i]] === 2) { isBi[i] = 1; bi.push(i); }
+    if (bi.length < 4) return null;
+    var visited = new Uint8Array(81), chain = [], S, zbit, maxLen;
+    function dfs(cell, outBit) {
+      if (chain.length >= maxLen) return null;
+      var pe = PEERS[cell];
+      for (var k = 0; k < 20; k++) {
+        var P = pe[k];
+        if (!isBi[P] || visited[P] || !(s.c[P] & outBit)) continue;
+        var o = s.c[P] ^ outBit;
+        chain.push(P); visited[P] = 1;
+        if (o === zbit && chain.length === maxLen) {
+          var elim = [];
+          for (var j = 0; j < 81; j++) if ((s.c[j] & zbit) && !visited[j] && SEES[j * 81 + S] && SEES[j * 81 + P]) elim.push([j, zbit]);
+          if (elim.length) return { tech: 'xychain', elim: elim, cells: chain.slice(), pivots: [S, P], digits: zbit, unit: -1 };
+        }
+        var r = dfs(P, o);
+        if (r) return r;
+        chain.pop(); visited[P] = 0;
+      }
+      return null;
+    }
+    for (maxLen = 4; maxLen <= 8; maxLen++) {
+      for (var x = 0; x < bi.length; x++) {
+        S = bi[x];
+        var ds = digitsOf(s.c[S]);
+        for (var k = 0; k < 2; k++) {
+          zbit = 1 << (ds[k] - 1);
+          chain = [S]; visited.fill(0); visited[S] = 1;
+          var r = dfs(S, s.c[S] ^ zbit);
+          if (r) return r;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Ordered easiest first. cost = [first use, each later use], after sudokuoftheday.com's published model.
+  var TECHS = [
+    { id: 'full', name: 'Last free cell', tier: 1, cost: [100, 100], fn: tFull },
+    { id: 'hidden', name: 'Hidden single', tier: 1, cost: [100, 100], fn: tHidden },
+    { id: 'naked', name: 'Naked single', tier: 2, cost: [140, 140], fn: tNaked },
+    { id: 'pointing', name: 'Pointing', tier: 3, cost: [350, 200], fn: tPointing },
+    { id: 'claiming', name: 'Claiming', tier: 3, cost: [500, 250], fn: tClaiming },
+    { id: 'npair', name: 'Naked pair', tier: 3, cost: [750, 500], fn: nakedSubset(2, 'npair') },
+    { id: 'hpair', name: 'Hidden pair', tier: 3, cost: [1500, 1200], fn: hiddenSubset(2, 'hpair') },
+    { id: 'ntriple', name: 'Naked triple', tier: 4, cost: [2000, 1400], fn: nakedSubset(3, 'ntriple') },
+    { id: 'htriple', name: 'Hidden triple', tier: 4, cost: [2400, 1600], fn: hiddenSubset(3, 'htriple') },
+    { id: 'xwing', name: 'X-Wing', tier: 4, cost: [2800, 1600], fn: fish(2, 'xwing') },
+    { id: 'xywing', name: 'XY-Wing', tier: 4, cost: [3200, 2000], fn: tXYWing },
+    { id: 'nquad', name: 'Naked quad', tier: 5, cost: [5000, 4000], fn: nakedSubset(4, 'nquad') },
+    { id: 'xyzwing', name: 'XYZ-Wing', tier: 5, cost: [5600, 3600], fn: tXYZWing },
+    { id: 'hquad', name: 'Hidden quad', tier: 5, cost: [7000, 5000], fn: hiddenSubset(4, 'hquad') },
+    { id: 'swordfish', name: 'Swordfish', tier: 5, cost: [8000, 6000], fn: fish(3, 'swordfish') },
+    { id: 'wwing', name: 'W-Wing', tier: 6, cost: [6000, 4400], fn: tWWing },
+    { id: 'colouring', name: 'Simple colouring', tier: 6, cost: [7000, 5000], fn: tColouring },
+    { id: 'jellyfish', name: 'Jellyfish', tier: 6, cost: [9000, 7000], fn: fish(4, 'jellyfish') },
+    { id: 'xychain', name: 'XY-Chain', tier: 6, cost: [9000, 7000], fn: tXYChain }
+  ];
+  var TECH_BY_ID = {};
+  TECHS.forEach(function (t, i) { t.rank = i; TECH_BY_ID[t.id] = t; });
+
+  // Solve the way a person would: always the easiest technique that makes progress.
+  // opts.allow: optional {techId:true} whitelist; opts.maxTier; opts.keepSteps; opts.stopAtPlacement
+  function solveLogic(values, opts) {
+    opts = opts || {};
+    var maxTier = opts.maxTier || 9, allow = opts.allow || null;
+    var s = new State(toArr(values));
+    var out = { solved: false, bad: s.bad, steps: [], counts: {}, score: 0, tier: 0, hardest: null, state: s };
+    if (s.bad) return out;
+    // opts.restrict: per-cell candidate masks the caller already trusts (the player's own correct notes)
+    if (opts.restrict) for (var ri = 0; ri < 81; ri++) if (!s.v[ri] && opts.restrict[ri]) s.c[ri] &= opts.restrict[ri];
+    var hardRank = -1;
+    while (s.left > 0) {
+      var step = null, tech = null;
+      for (var t = 0; t < TECHS.length; t++) {
+        tech = TECHS[t];
+        if (tech.tier > maxTier || (allow && !allow[tech.id])) continue;
+        step = tech.fn(s);
+        if (step) break;
+      }
+      if (!step) break;
+      var n = out.counts[tech.id] || 0;
+      out.counts[tech.id] = n + 1;
+      out.score += tech.cost[n ? 1 : 0];
+      if (tech.rank > hardRank) { hardRank = tech.rank; out.hardest = tech.id; }
+      if (tech.tier > out.tier) out.tier = tech.tier;
+      if (step.elim) { for (var e = 0; e < step.elim.length; e++) s.c[step.elim[e][0]] &= ~step.elim[e][1]; }
+      else s.set(step.cell, step.digit);
+      if (opts.keepSteps) out.steps.push(step);
+      if (opts.stopAtPlacement && !step.elim) { if (!opts.keepSteps) out.steps.push(step); break; }
+    }
+    out.solved = s.left === 0;
+    return out;
+  }
+
+  // ---------- brute force (independent of the logic above) ----------
+  // Counts solutions up to `limit`. If `rng` is given, digit order is randomised (used to build full grids).
+  function bruteForce(values, limit, rng) {
+    var g = new Uint8Array(81), rm = new Uint16Array(9), cm = new Uint16Array(9), bm = new Uint16Array(9), i;
+    values = toArr(values);
+    for (i = 0; i < 81; i++) {
+      var d = values[i]; g[i] = d;
+      if (d) {
+        var bit = 1 << (d - 1);
+        if ((rm[ROW[i]] | cm[COL[i]] | bm[BOX[i]]) & bit) return { count: 0, solution: null };
+        rm[ROW[i]] |= bit; cm[COL[i]] |= bit; bm[BOX[i]] |= bit;
+      }
+    }
+    var count = 0, first = null;
+    function rec() {
+      var best = -1, bestN = 10, bestM = 0, i2;
+      for (i2 = 0; i2 < 81; i2++) if (!g[i2]) {
+        var m = 511 & ~(rm[ROW[i2]] | cm[COL[i2]] | bm[BOX[i2]]), n = BC[m];
+        if (n === 0) return;
+        if (n < bestN) { bestN = n; best = i2; bestM = m; if (n === 1) break; }
+      }
+      if (best < 0) { count++; if (!first) first = new Uint8Array(g); return; }
+      var ds = digitsOf(bestM);
+      if (rng) shuffle(ds, rng);
+      for (var k = 0; k < ds.length; k++) {
+        var bit2 = 1 << (ds[k] - 1), r = ROW[best], c = COL[best], b = BOX[best];
+        g[best] = ds[k]; rm[r] |= bit2; cm[c] |= bit2; bm[b] |= bit2;
+        rec();
+        g[best] = 0; rm[r] &= ~bit2; cm[c] &= ~bit2; bm[b] &= ~bit2;
+        if (count >= limit) return;
+      }
+    }
+    rec();
+    return { count: count, solution: first };
+  }
+  function isValidSolution(sol) {
+    sol = toArr(sol);
+    for (var u = 0; u < 27; u++) { var m = 0; for (var k = 0; k < 9; k++) { var d = sol[UNITS[u][k]]; if (!d) return false; m |= 1 << (d - 1); } if (m !== 511) return false; }
+    return true;
+  }
+
+  // ---------- levels ----------
+  // maxTier: hardest technique tier the puzzle may need. needTier: it must actually need that tier.
+  var LEVELS = [
+    { key: 'beginner', name: 'Beginner', maxTier: 1, needTier: 1, givens: [40, 45], blurb: 'Plenty of givens. Every step is a digit with only one place left.' },
+    { key: 'easy', name: 'Easy', maxTier: 2, needTier: 2, givens: [34, 38], blurb: 'Singles only, with fewer givens and cells where only one digit fits.' },
+    { key: 'medium', name: 'Medium', maxTier: 2, needTier: 2, givens: [24, 31], minNaked: 4, blurb: 'Still singles, but sparse. You have to look much harder for each one.' },
+    { key: 'hard', name: 'Hard', maxTier: 3, needTier: 3, givens: [22, 32], blurb: 'Needs notes: pointing, claiming and pairs.' },
+    { key: 'expert', name: 'Expert', maxTier: 4, needTier: 4, givens: [22, 32], blurb: 'Needs triples, X-Wings or XY-Wings.' },
+    { key: 'master', name: 'Master', maxTier: 5, needTier: 5, givens: [22, 32], blurb: 'Needs quads, Swordfish or XYZ-Wings on top of everything else.' },
+    { key: 'extreme', name: 'Extreme', maxTier: 6, needTier: 6, minTop: 2, minAdvanced: 4, givens: [22, 32], blurb: 'Needs several chains: colouring, W-Wings, XY-Chains or a Jellyfish.' }
+  ];
+  var LEVEL_BY_KEY = {};
+  LEVELS.forEach(function (l, i) { l.index = i; LEVEL_BY_KEY[l.key] = l; });
+
+  // ---------- generation ----------
+  function fullGrid(rng) { return bruteForce(new Uint8Array(81), 1, rng).solution; }
+
+  // Remove givens in 180-degree symmetric pairs for as long as the puzzle stays solvable with the level's techniques.
+  // A full logical solve proves the solution is unique, so no guessing is ever required.
+  function dig(solution, lvl, rng) {
+    var puz = new Uint8Array(solution), givens = 81, order = [], i;
+    for (i = 0; i <= 40; i++) order.push(i);
+    shuffle(order, rng);
+    var target = lvl.maxTier <= 2 && lvl.key !== 'medium' ? lvl.givens[0] + ((rng() * (lvl.givens[1] - lvl.givens[0] + 1)) | 0) : lvl.givens[0];
+    for (var k = 0; k < order.length && givens > target; k++) {
+      var a = order[k], b = 80 - a, n = a === b ? 1 : 2;
+      if (givens - n < target) continue;
+      var va = puz[a], vb = puz[b];
+      puz[a] = 0; puz[b] = 0;
+      if (solveLogic(puz, { maxTier: lvl.maxTier }).solved) givens -= n;
+      else { puz[a] = va; puz[b] = vb; }
+    }
+    return { puzzle: puz, givens: givens };
+  }
+
+  function histogram(g) { var h = [0, 0, 0, 0, 0, 0, 0, 0, 0]; for (var i = 0; i < 81; i++) { var d = g.charCodeAt(i) - 48; if (d > 0) h[d - 1]++; } return h; }
+  function relabel(s) { var map = {}, n = 0, out = ''; for (var i = 0; i < 81; i++) { var ch = s[i]; if (!(ch in map)) map[ch] = ++n; out += map[ch]; } return out; }
+  // How alike two puzzles are. a, b: {g: givens string, s: solution string}
+  function compare(a, b) {
+    var sameSol = 0, sameGiven = 0, sameMask = true, ga = 0, gb = 0, i;
+    for (i = 0; i < 81; i++) {
+      if (a.s[i] === b.s[i]) sameSol++;
+      var x = a.g[i] !== '0', y = b.g[i] !== '0';
+      if (x) ga++; if (y) gb++;
+      if (x !== y) sameMask = false;
+      if (x && y && a.g[i] === b.g[i]) sameGiven++;
+    }
+    var ha = histogram(a.g), hb = histogram(b.g), sameHist = true;
+    for (i = 0; i < 9; i++) if (ha[i] !== hb[i]) sameHist = false;
+    return { sameSol: sameSol, sameGiven: sameGiven, givenShare: sameGiven / Math.min(ga, gb), sameMask: sameMask, sameHist: sameHist, sameRelabel: relabel(a.s) === relabel(b.s) };
+  }
+  function tooSimilar(a, b) {
+    var c = compare(a, b);
+    if (c.sameSol >= 27) return 'solution grid overlaps';        // chance level is 9 of 81
+    if (c.sameRelabel) return 'same grid with digits renamed';
+    if (c.sameMask) return 'same pattern of givens';
+    if (c.sameHist) return 'same count of each digit';
+    if (c.givenShare >= 0.3) return 'too many givens in the same place';
+    return null;
+  }
+  function clashesWithHistory(p, history) {
+    for (var i = 0; i < (history ? history.length : 0); i++) { var why = tooSimilar(p, history[i]); if (why) return why; }
+    return null;
+  }
+
+  function hardSteps(counts, tier) { var n = 0; TECHS.forEach(function (t) { if (t.tier >= tier) n += counts[t.id] || 0; }); return n; }
+  function generate(levelKey, history, seed) {
+    var lvl = LEVEL_BY_KEY[levelKey] || LEVELS[0];
+    var base = seed == null ? randomSeed() : seed >>> 0, t0 = Date.now(), attempts = 0, rejected = {};
+    function reject(why) { rejected[why] = (rejected[why] || 0) + 1; }
+    for (; ;) {
+      var s = (base + attempts * 0x9E3779B1) >>> 0, rng = mulberry32(s);
+      attempts++;
+      var sol = fullGrid(rng);
+      var d = dig(sol, lvl, rng);
+      if (d.givens < lvl.givens[0] || d.givens > lvl.givens[1]) { reject('givens'); continue; }
+      var grade = solveLogic(d.puzzle, { maxTier: lvl.maxTier });
+      if (!grade.solved) { reject('unsolved'); continue; }
+      if (grade.tier !== lvl.needTier) { reject('tier'); continue; }
+      if (lvl.minNaked && (grade.counts.naked || 0) < lvl.minNaked) { reject('tier'); continue; }
+      if (lvl.minTop && hardSteps(grade.counts, lvl.needTier) < lvl.minTop) { reject('tier'); continue; }
+      if (lvl.minAdvanced && hardSteps(grade.counts, 4) < lvl.minAdvanced) { reject('tier'); continue; }
+      // Independent proof: exactly one solution, and it is the grid we dug from.
+      var bf = bruteForce(d.puzzle, 2);
+      if (bf.count !== 1 || toStr(bf.solution) !== toStr(sol) || !isValidSolution(sol)) { reject('unique'); continue; }
+      var p = { g: toStr(d.puzzle), s: toStr(sol) };
+      var why = clashesWithHistory(p, history);
+      if (why) { reject('similar'); continue; }
+      return {
+        level: lvl.key, givens: p.g, solution: p.s, givenCount: d.givens, score: grade.score, tier: grade.tier,
+        hardest: grade.hardest, counts: grade.counts, seed: s, attempts: attempts, rejected: rejected, ms: Date.now() - t0
+      };
+    }
+  }
+
+  // ---------- hints ----------
+  // values: current board (givens + the player's correct entries). Returns the easiest next step and the next placement.
+  function hint(values, restrict) {
+    var r = solveLogic(values, { keepSteps: true, stopAtPlacement: true, restrict: restrict || null });
+    if (r.bad || !r.steps.length) return null;
+    var last = r.steps[r.steps.length - 1];
+    return { first: r.steps[0], placement: last.elim ? null : last, before: r.steps.length - 1 };
+  }
+  function candidates(values) { var s = new State(toArr(values)); return Array.prototype.slice.call(s.c); }
+
+  var api = {
+    ROW: ROW, COL: COL, BOX: BOX, UNITS: UNITS, PEERS: PEERS, TECHS: TECHS, TECH_BY_ID: TECH_BY_ID, LEVELS: LEVELS, LEVEL_BY_KEY: LEVEL_BY_KEY,
+    digitsOf: digitsOf, toArr: toArr, toStr: toStr, solveLogic: solveLogic, bruteForce: bruteForce, isValidSolution: isValidSolution,
+    generate: generate, hardSteps: hardSteps, compare: compare, tooSimilar: tooSimilar, clashesWithHistory: clashesWithHistory, hint: hint, candidates: candidates,
+    histogram: histogram, mulberry32: mulberry32
+  };
+  root.SudokuEngine = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+
+  // Worker entry point: {id, level, history} -> {id, puzzle}
+  if (typeof WorkerGlobalScope !== 'undefined' && typeof self !== 'undefined' && self instanceof WorkerGlobalScope) {
+    self.onmessage = function (e) {
+      var m = e.data;
+      self.postMessage({ id: m.id, puzzle: generate(m.level, m.history, m.seed) });
+    };
+  }
+})(typeof self !== 'undefined' ? self : (typeof globalThis !== 'undefined' ? globalThis : this));
+
+</script>
+<script>
+(function () {
+'use strict';
+var E = window.SudokuEngine, ROW = E.ROW, COL = E.COL, BOX = E.BOX, UNITS = E.UNITS, PEERS = E.PEERS, LEVELS = E.LEVELS;
+function $(s) { return document.querySelector(s); }
+function el(tag, attrs) {
+  var n = document.createElement(tag), i, k;
+  if (attrs) for (k in attrs) {
+    if (k === 'text') n.textContent = attrs[k];
+    else if (k === 'html') n.innerHTML = attrs[k];
+    else if (k === 'on') { for (var ev in attrs.on) n.addEventListener(ev, attrs.on[ev]); }
+    else if (attrs[k] != null) n.setAttribute(k, attrs[k]);
+  }
+  for (i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c == null) continue; n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+  return n;
+}
+
+/* ---------- storage: this browser only, and it may be unavailable ---------- */
+var mem = {};
+var store = {
+  get: function (k, def) { try { var v = localStorage.getItem('sudoku.' + k); if (v != null) return JSON.parse(v); } catch (e) { } return k in mem ? mem[k] : def; },
+  set: function (k, v) { mem[k] = v; try { localStorage.setItem('sudoku.' + k, JSON.stringify(v)); } catch (e) { } },
+  del: function (k) { delete mem[k]; try { localStorage.removeItem('sudoku.' + k); } catch (e) { } }
+};
+
+/* ---------- settings ---------- */
+var THEMES = [
+  { id: 'paper', name: 'Paper', dark: false }, { id: 'linen', name: 'Linen', dark: false }, { id: 'sage', name: 'Sage', dark: false }, { id: 'contrast', name: 'Contrast', dark: false },
+  { id: 'dusk', name: 'Dusk', dark: true }, { id: 'chalk', name: 'Chalk', dark: true }, { id: 'black', name: 'Black', dark: true }
+];
+var PENS = [
+  { id: 'theme', name: 'Theme colour' },
+  { id: 'blue', name: 'Blue', light: '#1A56C4', dark: '#A6CAFF' }, { id: 'teal', name: 'Teal', light: '#0A5F56', dark: '#7FE3D2' },
+  { id: 'violet', name: 'Violet', light: '#6238BC', dark: '#D3C2FF' }, { id: 'rose', name: 'Rose', light: '#A81C54', dark: '#FFB3CF' },
+  { id: 'amber', name: 'Amber', light: '#7A4A00', dark: '#FFD27A' }, { id: 'graphite', name: 'Graphite', light: '#465160', dark: '#CBD3DE' }
+];
+var prefersDark = false;
+try { prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { }
+var DEFAULTS = { theme: prefersDark ? 'dusk' : 'paper', pen: 'theme', check: 'solution', limit: 3, autoNotes: true, hlPeers: true, hlSame: true, timer: true, fadeDone: true, input: 'cell', startNotes: false, digits: 'weight' };
+var settings = Object.assign({}, DEFAULTS, store.get('settings', {}));
+function saveSettings() { store.set('settings', settings); }
+function themeObj() { for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === settings.theme) return THEMES[i]; return THEMES[0]; }
+function applyTheme() {
+  var t = themeObj(), root = document.documentElement;
+  root.setAttribute('data-theme', t.id);
+  root.setAttribute('data-digits', settings.digits === 'colour' ? 'colour' : 'weight');
+  var pen = null;
+  for (var i = 0; i < PENS.length; i++) if (PENS[i].id === settings.pen) pen = PENS[i];
+  if (pen && pen.id !== 'theme') root.style.setProperty('--pen', t.dark ? pen.dark : pen.light); else root.style.removeProperty('--pen');
+  var mt = document.querySelector('meta[name="theme-color"]');   // only present in the installable build
+  if (mt) mt.setAttribute('content', getComputedStyle(root).getPropertyValue('--page').trim());
+}
+
+/* ---------- stats, history ---------- */
+var stats = store.get('stats', {});
+function st(level) { if (!stats[level]) stats[level] = { played: 0, won: 0, best: 0, total: 0, streak: 0, bestStreak: 0, clean: 0 }; return stats[level]; }
+function saveStats() { store.set('stats', stats); }
+var history = store.get('history', []);   // the last 20 puzzles dealt: {g: givens, s: solution}
+
+/* ---------- puzzle supply: a worker, with a same-thread fallback ---------- */
+var worker = null, reqId = 0, pending = {};
+function getWorker() {
+  if (worker !== null) return worker;
+  try {
+    var src = document.getElementById('engine-src').textContent;
+    worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    worker.onmessage = function (e) { var p = pending[e.data.id]; if (p) { delete pending[e.data.id]; clearTimeout(p.timer); p.cb(e.data.puzzle); } };
+    worker.onerror = function () { killWorker(); };
+  } catch (e) { worker = false; }
+  return worker;
+}
+function killWorker() {
+  try { if (worker) worker.terminate(); } catch (e) { }
+  worker = false;
+  var old = pending; pending = {};
+  Object.keys(old).forEach(function (id) { clearTimeout(old[id].timer); runInline(old[id].level, old[id].cb); });
+}
+function runInline(level, cb) { setTimeout(function () { cb(E.generate(level, history)); }, 40); }
+function requestPuzzle(level, cb, waiting) {
+  var w = getWorker();
+  if (!w) return runInline(level, cb);
+  var id = ++reqId;
+  pending[id] = { level: level, cb: cb, timer: waiting ? setTimeout(killWorker, 30000) : 0 };
+  w.postMessage({ id: id, level: level, history: history });
+}
+var spare = store.get('spare', {});   // one ready-made puzzle per level so the next game starts at once
+function stockSpare(level) {
+  if (spare[level]) return;
+  requestPuzzle(level, function (p) { if (!spare[level]) { spare[level] = p; store.set('spare', spare); } });
+}
+function takeSpare(level) {
+  var p = spare[level];
+  if (!p) return null;
+  delete spare[level]; store.set('spare', spare);
+  if (!E.isValidSolution(p.solution) || E.clashesWithHistory({ g: p.givens, s: p.solution }, history)) return null;
+  return p;
+}
+
+/* ---------- game state ---------- */
+var game = store.get('game', null);
+var sel = -1, armed = 0, noting = false, paused = false, screen = 'home', hintState = null, showWrong = false, fx = {}, fxTimer = null, busy = false;
+function levelOf(g) { return E.LEVEL_BY_KEY[g.level] || LEVELS[0]; }
+function saveGame() { if (game) store.set('game', game); else store.del('game'); }
+function isGiven(i) { return game.givens.charCodeAt(i) !== 48; }
+function solAt(i) { return game.solution.charCodeAt(i) - 48; }
+function isLocked(i) { return isGiven(i) || (settings.check === 'solution' && game.values[i] && game.values[i] === solAt(i)); }
+function filledCount() { var n = 0; for (var i = 0; i < 81; i++) if (game.values[i]) n++; return n; }
+function inPlay() { return game && game.status === 'playing'; }
+
+function beginGame(p) {
+  var values = [], notes = [], i;
+  for (i = 0; i < 81; i++) { values.push(p.givens.charCodeAt(i) - 48); notes.push(0); }
+  game = {
+    level: p.level, givens: p.givens, solution: p.solution, values: values, notes: notes, mistakes: 0, hints: 0, elapsed: 0, status: 'playing',
+    undo: [], redo: [], freed: false, moved: false, lossCounted: false,
+    meta: { score: p.score, hardest: p.hardest, counts: p.counts, givenCount: p.givenCount, seed: p.seed }
+  };
+  history.push({ g: p.givens, s: p.solution });
+  while (history.length > 20) history.shift();
+  store.set('history', history);
+  st(p.level).played++; saveStats();
+  if (settings.startNotes) fillNotes(true);
+  sel = -1; armed = 0; noting = false; paused = false; hintState = null; showWrong = false; fx = {};
+  saveGame();
+  stockSpare(p.level);
+}
+function startNew(level) {
+  if (busy) return;
+  if (inPlay() && game.moved) { var s = st(game.level); s.streak = 0; saveStats(); }
+  closeSheet();
+  var ready = takeSpare(level);
+  show('game');
+  if (ready) { beginGame(ready); renderGame(); return; }
+  busy = true; game = null; saveGame();
+  renderMaking(level);
+  requestPuzzle(level, function (p) { busy = false; beginGame(p); if (screen === 'game') renderGame(); else renderHome(); }, true);
+}
+function askNew(level) {
+  if (inPlay() && game.moved) {
+    openSheet('Leave this puzzle?', [
+      el('p', { text: 'Your ' + levelOf(game).name + ' puzzle is still in progress. Starting a new one ends your winning streak for that level.' }),
+      el('button', { class: 'btn primary', text: 'Start a new ' + E.LEVEL_BY_KEY[level].name + ' puzzle', on: { click: function () { startNew(level); } } }),
+      el('button', { class: 'btn', text: 'Keep playing', on: { click: function () { closeSheet(); if (screen !== 'game') { show('game'); renderGame(); } } } })
+    ]);
+  } else startNew(level);
+}
+function restart() {
+  for (var i = 0; i < 81; i++) { game.values[i] = game.givens.charCodeAt(i) - 48; game.notes[i] = 0; }
+  game.mistakes = 0; game.hints = 0; game.elapsed = 0; game.status = 'playing'; game.undo = []; game.redo = []; game.freed = false; game.moved = false;
+  if (settings.startNotes) fillNotes(true);
+  sel = -1; armed = 0; noting = false; paused = false; hintState = null; showWrong = false; fx = {};
+  saveGame(); closeSheet(); renderGame();
+}
+
+/* ---------- moves ---------- */
+function pushUndo(diff) { game.undo.push(diff); if (game.undo.length > 400) game.undo.shift(); game.redo = []; game.moved = true; }
+function setFx(map, ms) { fx = map; clearTimeout(fxTimer); fxTimer = setTimeout(function () { fx = {}; renderBoard(); }, ms); }
+function unitDone(u) { var m = 0; for (var k = 0; k < 9; k++) { var v = game.values[UNITS[u][k]]; if (!v) return false; m |= 1 << (v - 1); } return m === 511; }
+function placeDigit(i, d, fromHint) {
+  if (!inPlay() || isLocked(i)) return;
+  var bit = 1 << (d - 1), diff = [], k;
+  if (game.values[i] === d) {            // tapping the same digit again takes it back
+    diff.push([i, d, 0, 0, 0]); game.values[i] = 0; pushUndo(diff); afterMove(); return;
+  }
+  diff.push([i, game.values[i], game.notes[i], d, 0]);
+  game.values[i] = d; game.notes[i] = 0;
+  if (settings.autoNotes) for (k = 0; k < 20; k++) { var p = PEERS[i][k]; if (game.notes[p] & bit) { diff.push([p, 0, game.notes[p], 0, game.notes[p] & ~bit]); game.notes[p] &= ~bit; } }
+  pushUndo(diff);
+  var wrong = d !== solAt(i);
+  if (!fromHint && settings.check === 'solution' && wrong) {
+    game.mistakes++;
+    var m = {}; m[i] = 'fx-bad'; setFx(m, 500);
+    if (settings.limit > 0 && !game.freed && game.mistakes >= settings.limit) { afterMove(); return lose(); }
+  } else {
+    var m2 = {}, any = false;
+    [ROW[i], 9 + COL[i], 18 + BOX[i]].forEach(function (u) {
+      if (!unitDone(u)) return;
+      UNITS[u].forEach(function (c) { m2[c] = 'fx-unit'; any = true; });
+    });
+    if (any) { m2.origin = i; setFx(m2, 900); }
+  }
+  afterMove();
+  checkComplete(i);
+}
+function toggleNote(i, d) {
+  if (!inPlay() || isGiven(i) || game.values[i]) return;
+  var bit = 1 << (d - 1);
+  pushUndo([[i, 0, game.notes[i], 0, game.notes[i] ^ bit]]);
+  game.notes[i] ^= bit;
+  afterMove();
+}
+function erase() {
+  if (!inPlay() || sel < 0 || isLocked(sel)) return;
+  if (!game.values[sel] && !game.notes[sel]) return;
+  pushUndo([[sel, game.values[sel], game.notes[sel], 0, 0]]);
+  game.values[sel] = 0; game.notes[sel] = 0;
+  afterMove();
+}
+function undo() {
+  if (!inPlay() || !game.undo.length) return;
+  var diff = game.undo.pop();
+  for (var k = diff.length - 1; k >= 0; k--) { game.values[diff[k][0]] = diff[k][1]; game.notes[diff[k][0]] = diff[k][2]; }
+  game.redo.push(diff); sel = diff[0][0];
+  afterMove();
+}
+function redo() {
+  if (!inPlay() || !game.redo.length) return;
+  var diff = game.redo.pop();
+  for (var k = 0; k < diff.length; k++) { game.values[diff[k][0]] = diff[k][3]; game.notes[diff[k][0]] = diff[k][4]; }
+  game.undo.push(diff); sel = diff[0][0];
+  afterMove(); checkComplete(sel);
+}
+function fillNotes(silent) {
+  var cand = E.candidates(game.values), diff = [];
+  for (var i = 0; i < 81; i++) if (!game.values[i] && game.notes[i] !== cand[i]) { diff.push([i, 0, game.notes[i], 0, cand[i]]); game.notes[i] = cand[i]; }
+  if (silent) return;
+  if (diff.length) pushUndo(diff);
+  afterMove();
+}
+function clearNotes() {
+  var diff = [];
+  for (var i = 0; i < 81; i++) if (game.notes[i]) { diff.push([i, game.values[i], game.notes[i], game.values[i], 0]); game.notes[i] = 0; }
+  if (diff.length) pushUndo(diff);
+  afterMove();
+}
+function afterMove() { hintState = null; showWrong = false; saveGame(); renderGame(); }
+function wrongCells() { var a = []; for (var i = 0; i < 81; i++) if (game.values[i] && game.values[i] !== solAt(i)) a.push(i); return a; }
+function checkComplete(origin) {
+  if (!inPlay() || filledCount() < 81) return;
+  if (!wrongCells().length) return win(origin);
+  if (settings.check !== 'solution') toast('The grid is full, but something is wrong. Ask for a hint to see where.');
+}
+function win(origin) {
+  game.status = 'won';
+  var s = st(game.level);
+  s.won++; s.total += game.elapsed; s.streak++; if (s.streak > s.bestStreak) s.bestStreak = s.streak;
+  var record = !s.best || game.elapsed < s.best; if (record) s.best = game.elapsed;
+  if (!game.mistakes && !game.hints) s.clean++;
+  saveStats(); saveGame();
+  var m = { origin: origin >= 0 ? origin : 40 };
+  for (var i = 0; i < 81; i++) m[i] = 'fx-win';
+  setFx(m, 1700);
+  renderGame();
+  setTimeout(function () { if (game && game.status === 'won') winSheet(record); }, 1250);
+}
+function lose() {
+  game.status = 'lost';
+  if (!game.lossCounted) { st(game.level).streak = 0; game.lossCounted = true; saveStats(); }
+  saveGame(); renderGame();
+  setTimeout(loseSheet, 450);
+}
+
+/* ---------- input ---------- */
+function tapCell(i) {
+  if (!inPlay() || paused) return;
+  sel = i;
+  if (settings.input === 'digit' && armed) { if (noting) toggleNote(i, armed); else if (!isLocked(i)) placeDigit(i, armed); else renderGame(); return; }
+  renderGame();
+}
+function tapKey(d) {
+  if (!inPlay() || paused) return;
+  if (settings.input === 'digit') { armed = armed === d ? 0 : d; renderGame(); return; }
+  if (sel < 0) { toast('Choose a cell first.'); return; }
+  if (noting) toggleNote(sel, d); else placeDigit(sel, d);
+}
+
+/* ---------- hints ---------- */
+function unitName(u) { return u < 9 ? 'row ' + (u + 1) : u < 18 ? 'column ' + (u - 8) : 'the highlighted box'; }
+function listDigits(mask) { var a = E.digitsOf(mask); return a.length < 2 ? String(a[0]) : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+function askHint() {
+  if (!inPlay() || paused) return;
+  var wrong = wrongCells();
+  game.hints++; game.moved = true;
+  if (wrong.length) { hintState = { wrong: wrong, stage: 1 }; saveGame(); return renderGame(); }
+  var restrict = [];
+  for (var i = 0; i < 81; i++) restrict.push(!game.values[i] && game.notes[i] && (game.notes[i] & (1 << (solAt(i) - 1))) ? game.notes[i] : 511);
+  var h = E.hint(game.values, restrict) || E.hint(game.values);
+  if (!h) {   // should not happen for puzzles this app makes; fall back to revealing one cell
+    for (var j = 0; j < 81; j++) if (!game.values[j]) { h = { first: { tech: 'reveal', cell: j, digit: solAt(j), unit: 18 + BOX[j] }, placement: null }; h.placement = h.first; break; }
+  }
+  hintState = { h: h, stage: 1 };
+  saveGame(); renderGame();
+}
+function hintText(hs) {
+  if (hs.wrong) return { title: hs.wrong.length === 1 ? 'One digit is wrong' : hs.wrong.length + ' digits are wrong', body: hs.stage === 1 ? 'Fix what is on the board before looking for the next step.' : 'The wrong digits are marked in red.' };
+  var s = hs.h.first, t = E.TECH_BY_ID[s.tech], name = t ? t.name : 'Next digit', n = s.cells ? s.cells.length : 0, u = s.unit >= 0 ? unitName(s.unit) : '', body;
+  if (hs.stage === 1) {
+    if (s.tech === 'full') body = 'Look at ' + u + '. It has a single free cell.';
+    else if (s.tech === 'hidden') body = 'Look at ' + u + '. One digit has only one place left there.';
+    else if (s.tech === 'naked') body = 'One cell in the highlighted box can hold only a single digit.';
+    else if (s.tech === 'reveal') body = 'No simple step was found, so here is a cell to fill.';
+    else if (s.units) body = 'Look at the highlighted ' + (s.unit < 9 ? 'rows' : 'columns') + '.';
+    else if (s.unit >= 0) body = 'Look at ' + u + '.';
+    else body = 'Look at the highlighted cells.';
+    return { title: name, body: body };
+  }
+  var d = s.digit, ds = s.digits ? listDigits(s.digits) : '';
+  switch (s.tech) {
+    case 'full': body = d + ' is the only digit missing from ' + u + '.'; break;
+    case 'hidden': body = 'In ' + u + ', the marked cell is the only place left for ' + d + '.'; break;
+    case 'naked': body = 'Every other digit already appears in this cell’s row, column or box, so it must be ' + d + '.'; break;
+    case 'reveal': body = 'The marked cell is ' + d + '.'; break;
+    case 'pointing': body = 'Inside the box, ' + ds + ' can only go in ' + unitName(s.unit2) + '. So ' + ds + ' can be removed from the rest of that line (red outlines).'; break;
+    case 'claiming': body = 'In ' + u + ', ' + ds + ' can only go inside one box. So ' + ds + ' can be removed from the other cells of that box (red outlines).'; break;
+    case 'npair': case 'ntriple': case 'nquad': body = 'The ' + n + ' outlined cells in ' + u + ' hold only ' + ds + ' between them. Those digits can be removed from the other cells there (red outlines).'; break;
+    case 'hpair': case 'htriple': case 'hquad': body = 'In ' + u + ', ' + ds + ' can only go in the ' + n + ' outlined cells. Every other candidate can be removed from those cells.'; break;
+    case 'xwing': case 'swordfish': case 'jellyfish': var fn = { xwing: 'two', swordfish: 'three', jellyfish: 'four' }[s.tech]; body = 'In ' + fn + ' ' + (s.unit < 9 ? 'rows' : 'columns') + ', ' + ds + ' is confined to the same ' + fn + ' ' + (s.unit < 9 ? 'columns' : 'rows') + '. It can be removed from the rest of those ' + (s.unit < 9 ? 'columns' : 'rows') + ' (red outlines).'; break;
+    case 'xywing': body = 'Whichever digit the double-outlined cell takes, one of the other two outlined cells becomes ' + ds + '. Any cell that sees both of them cannot be ' + ds + ' (red outlines).'; break;
+    case 'wwing': body = 'The two double-outlined cells hold the same pair. The two single-outlined cells are the only places for ' + listDigits(s.link) + ' in their row, column or box, and each sees one of the pair. So one of the pair must be ' + ds + ', and any cell that sees both cannot be ' + ds + ' (red outlines).'; break;
+    case 'colouring': body = 'Follow ' + ds + ' through the outlined cells. Each link is a row, column or box with only two places for ' + ds + ', so either every single-outlined cell is ' + ds + ' or every double-outlined one is. ' + (s.wrap ? 'Two cells with the same outline see each other, so that whole group cannot be ' + ds + ' (red outlines).' : 'A cell that sees one of each cannot be ' + ds + ' (red outlines).'); break;
+    case 'xychain': body = 'The outlined cells are a chain of two-candidate cells, each sharing a digit with the next. Followed from one double-outlined end to the other, it shows that one of the ends must be ' + ds + '. Any cell that sees both ends cannot be ' + ds + ' (red outlines).'; break;
+    case 'xyzwing': body = 'One of the three outlined cells must be ' + ds + '. Any cell that sees all three cannot be ' + ds + ' (red outlines).'; break;
+  }
+  if (s.elim && hs.h.placement) body += ' After that, the ringed cell can be filled.';
+  return { title: name, body: body };
+}
+function hintMarks() {   // cell -> class
+  var m = {}, hs = hintState, k;
+  if (!hs) return m;
+  if (hs.wrong) { if (hs.stage === 2) hs.wrong.forEach(function (c) { m[c] = 'err'; }); return m; }
+  var s = hs.h.first, units = s.units || (s.unit >= 0 ? [s.unit] : (s.tech === 'naked' ? [18 + BOX[s.cell]] : []));
+  units.forEach(function (u) { UNITS[u].forEach(function (c) { m[c] = 'h-unit'; }); });
+  if (s.unit < 0 && s.cells) s.cells.forEach(function (c) { m[c] = 'h-cell'; });
+  if (hs.stage === 2) {
+    if (s.cells) s.cells.forEach(function (c) { m[c] = 'h-cell'; });
+    if (s.pivots) s.pivots.forEach(function (c) { m[c] = 'h-cell h-pivot'; });
+    if (s.elim) for (k = 0; k < s.elim.length; k++) m[s.elim[k][0]] = 'h-elim';
+    if (hs.h.placement) m[hs.h.placement.cell] = 'h-target';
+  }
+  return m;
+}
+function hintApplyNotes() {
+  var s = hintState.h.first, cand = E.candidates(game.values), diff = [], next = game.notes.slice(), i, k;
+  for (i = 0; i < 81; i++) if (!game.values[i] && !next[i]) next[i] = cand[i];
+  for (k = 0; k < s.elim.length; k++) next[s.elim[k][0]] &= ~s.elim[k][1];
+  for (i = 0; i < 81; i++) if (next[i] !== game.notes[i]) { diff.push([i, game.values[i], game.notes[i], game.values[i], next[i]]); game.notes[i] = next[i]; }
+  if (diff.length) pushUndo(diff);
+  afterMove();
+}
+function renderHint() {
+  var box = $('#hintbox'), hs = hintState, over = game.status !== 'playing';
+  $('#controls').hidden = !!hs || over; box.hidden = !hs && !over;
+  if (!hs && over) {   // the puzzle has ended: offer what to do next where the keypad was
+    var l = levelOf(game), eb = el('div', { class: 'btns' });
+    box.innerHTML = '';
+    if (game.status === 'won') {
+      box.appendChild(el('h3', { text: 'Solved in ' + fmtTime(game.elapsed) }));
+      eb.appendChild(el('button', { class: 'btn primary', id: 'end-next', text: 'New ' + l.name + ' puzzle', on: { click: function () { startNew(game.level); } } }));
+      eb.appendChild(el('button', { class: 'btn', id: 'end-home', text: 'Choose another level', on: { click: function () { show('home'); } } }));
+    } else {
+      box.appendChild(el('h3', { text: 'Out of mistakes' }));
+      eb.appendChild(el('button', { class: 'btn primary', id: 'end-retry', text: 'Try this puzzle again', on: { click: restart } }));
+      eb.appendChild(el('button', { class: 'btn', id: 'end-options', text: 'More options', on: { click: loseSheet } }));
+    }
+    box.appendChild(eb);
+    return;
+  }
+  if (!hs) return;
+  var t = hintText(hs), btns = el('div', { class: 'btns' });
+  function close() { hintState = null; renderGame(); }
+  if (hs.stage === 1) {
+    btns.appendChild(el('button', { class: 'btn primary', id: 'hint-show', text: hs.wrong ? 'Show them' : 'Show me', on: { click: function () { hs.stage = 2; renderGame(); } } }));
+    btns.appendChild(el('button', { class: 'btn', id: 'hint-close', text: 'I’ve got it', on: { click: close } }));
+  } else if (hs.wrong) {
+    btns.appendChild(el('button', { class: 'btn primary', id: 'hint-close', text: 'Close', on: { click: function () { sel = hs.wrong[0]; close(); } } }));
+  } else {
+    var s = hs.h.first, pl = hs.h.placement;
+    if (s.elim) btns.appendChild(el('button', { class: 'btn primary', id: 'hint-notes', text: 'Apply to my notes', on: { click: hintApplyNotes } }));
+    if (pl) btns.appendChild(el('button', { class: 'btn' + (s.elim ? '' : ' primary'), id: 'hint-place', text: s.elim ? 'Fill the ringed cell' : 'Place ' + pl.digit, on: { click: function () { sel = pl.cell; hintState = null; placeDigit(pl.cell, pl.digit, true); } } }));
+    btns.appendChild(el('button', { class: 'btn', id: 'hint-close', text: 'Close', on: { click: close } }));
+  }
+  box.innerHTML = '';
+  box.appendChild(el('h3', { text: t.title }));
+  box.appendChild(el('p', { text: t.body }));
+  box.appendChild(btns);
+}
+
+/* ---------- rendering ---------- */
+var cells = [], keys = [];
+function buildBoard() {
+  var board = $('#board'), boxes = [], i;
+  for (i = 0; i < 9; i++) { boxes.push(el('div', { class: 'box' })); board.appendChild(boxes[i]); }
+  for (i = 0; i < 81; i++) {
+    var c = el('div', { class: 'cell', role: 'gridcell', 'data-i': i });
+    cells.push(c); boxes[BOX[i]].appendChild(c);
+  }
+  board.addEventListener('pointerdown', function (e) {
+    var t = e.target.closest ? e.target.closest('.cell') : null;
+    if (t) { e.preventDefault(); tapCell(+t.getAttribute('data-i')); }
+  });
+  var pad = $('#pad');
+  for (i = 1; i <= 9; i++) (function (d) {
+    var k = el('button', { class: 'key', 'data-d': d, 'aria-label': 'Digit ' + d }, el('span', { text: String(d) }), el('small'));
+    k.addEventListener('click', function () { tapKey(d); });
+    keys.push(k); pad.appendChild(k);
+  })(i);
+}
+function fmtTime(ms) { var s = Math.floor(ms / 1000), m = Math.floor(s / 60), h = Math.floor(m / 60); s %= 60; return h ? h + ':' + String(m % 60).padStart(2, '0') + ':' + String(s).padStart(2, '0') : m + ':' + String(s).padStart(2, '0'); }
+function conflictSet() {
+  var bad = {};
+  for (var u = 0; u < 27; u++) {
+    var seen = {};
+    for (var k = 0; k < 9; k++) { var c = UNITS[u][k], v = game.values[c]; if (!v) continue; if (seen[v] != null) { bad[c] = 1; bad[seen[v]] = 1; } else seen[v] = c; }
+  }
+  return bad;
+}
+function renderBoard() {
+  if (!game) return;
+  var hi = 0, i, marks = hintMarks(), bad = {};
+  if (settings.hlSame && !hintState) hi = settings.input === 'digit' ? armed : (sel >= 0 ? game.values[sel] : 0);
+  if (settings.check === 'conflicts') bad = conflictSet();
+  else if (settings.check === 'solution' || showWrong) wrongCells().forEach(function (c) { bad[c] = 1; });
+  var origin = fx.origin != null ? fx.origin : -1;
+  for (i = 0; i < 81; i++) {
+    var v = game.values[i], cls = 'cell ' + (isGiven(i) ? 'given' : 'user'), c = cells[i];
+    if (!hintState) {
+      if (sel >= 0 && settings.hlPeers && i !== sel && (ROW[i] === ROW[sel] || COL[i] === COL[sel] || BOX[i] === BOX[sel])) cls += ' peer';
+      if (hi && v === hi) cls += ' same';
+      if (i === sel) cls += ' sel';
+    }
+    if (bad[i]) cls += ' err';
+    if (marks[i]) cls += ' ' + marks[i];
+    if (fx[i]) cls += ' ' + fx[i];
+    if (c.className !== cls) c.className = cls;
+    var d = origin >= 0 ? Math.abs(ROW[i] - ROW[origin]) + Math.abs(COL[i] - COL[origin]) : 0;
+    c.style.setProperty('--d', d);
+    var key = v ? 'v' + v : 'n' + game.notes[i] + ':' + hi;
+    if (c._key !== key) {
+      c._key = key;
+      if (v) c.textContent = String(v);
+      else if (game.notes[i]) {
+        var h = '<div class="notes">';
+        for (var n = 1; n <= 9; n++) h += game.notes[i] & (1 << (n - 1)) ? '<span' + (n === hi ? ' class="hi"' : '') + '>' + n + '</span>' : '<span></span>';
+        c.innerHTML = h + '</div>';
+      } else c.textContent = '';
+    }
+    c.setAttribute('aria-label', 'Row ' + (ROW[i] + 1) + ', column ' + (COL[i] + 1) + (v ? ', ' + v + (isGiven(i) ? ' given' : '') : ', empty'));
+  }
+}
+function renderBar() {
+  $('#g-level').textContent = levelOf(game).name;
+  var sub = $('#g-sub'), txt = '', warn = false;
+  if (game.status === 'won') txt = 'Solved';
+  else if (settings.check === 'solution') {
+    if (settings.limit > 0 && !game.freed) { txt = 'Mistakes ' + game.mistakes + ' of ' + settings.limit; warn = game.mistakes >= settings.limit - 1 && game.mistakes > 0; }
+    else txt = 'Mistakes ' + game.mistakes;
+  } else txt = settings.check === 'conflicts' ? 'Duplicates shown' : 'No checking';
+  sub.textContent = txt; sub.className = 'bar-sub' + (warn ? ' warn' : '');
+  $('#g-timer').textContent = fmtTime(game.elapsed);
+  $('#g-timer').style.visibility = settings.timer ? 'visible' : 'hidden';
+  $('#g-pause').style.visibility = inPlay() ? 'visible' : 'hidden';
+}
+function renderPad() {
+  var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], i;
+  for (i = 0; i < 81; i++) counts[game.values[i]]++;
+  $('#pad').className = 'pad' + (noting ? ' noting' : '');
+  for (i = 1; i <= 9; i++) {
+    var left = 9 - counts[i], k = keys[i - 1], done = left <= 0 && settings.fadeDone;
+    k.className = 'key' + (settings.input === 'digit' && armed === i ? ' armed' : '') + (done ? ' done' : '');
+    k.disabled = !inPlay();   // a faded digit stays usable: one of the nine on the board may be wrong
+    k.lastChild.textContent = left > 0 ? String(left) : '';
+  }
+  $('#t-undo').disabled = !inPlay() || !game.undo.length;
+  $('#t-redo').disabled = !inPlay() || !game.redo.length;
+  $('#t-erase').disabled = !inPlay();
+  $('#t-hint').disabled = !inPlay();
+  var nb = $('#t-notes'); nb.className = 'tool' + (noting ? ' on' : ''); nb.setAttribute('aria-pressed', noting ? 'true' : 'false'); nb.disabled = !inPlay();
+  $('#t-notes-label').textContent = noting ? 'Notes on' : 'Notes';
+}
+function renderCover() {
+  var cover = $('#cover');
+  if (paused && inPlay()) {
+    cover.hidden = false; cover.innerHTML = '';
+    cover.appendChild(el('div', null, el('p', { text: 'Paused' }), el('button', { class: 'btn primary', id: 'resume-btn', style: 'width:auto;padding:12px 28px;margin:0 auto', text: 'Resume', on: { click: function () { paused = false; renderGame(); } } })));
+  } else cover.hidden = true;
+}
+function renderMaking(level) {
+  $('#g-level').textContent = E.LEVEL_BY_KEY[level].name; $('#g-sub').textContent = ''; $('#g-timer').textContent = '';
+  $('#g-pause').style.visibility = 'hidden';
+  var cover = $('#cover'); cover.hidden = false; cover.innerHTML = '';
+  var sp = el('div', { class: 'spinner' }); for (var i = 0; i < 9; i++) sp.appendChild(el('i'));
+  cover.appendChild(el('div', null, sp, el('p', { html: 'Making a puzzle<small>Checking it has exactly one solution</small>' })));
+  $('#controls').hidden = true; $('#hintbox').hidden = true;
+}
+function renderGame() {
+  if (!game) return;
+  renderBar(); renderBoard(); renderPad(); renderHint(); renderCover();
+}
+function renderHome() {
+  var slot = $('#resume-slot'); slot.innerHTML = '';
+  if (inPlay()) {
+    var thumb = el('div', { class: 'thumb', 'aria-hidden': 'true' });
+    for (var i = 0; i < 81; i++) thumb.appendChild(el('i', { class: isGiven(i) ? 'g' : (game.values[i] ? 'u' : '') }));
+    var left = 81 - filledCount();
+    slot.appendChild(el('button', { class: 'resume', id: 'resume', on: { click: function () { show('game'); renderGame(); } } }, thumb,
+      el('div', null, el('b', { text: 'Continue ' + levelOf(game).name }), el('span', { text: fmtTime(game.elapsed) + ' played, ' + left + (left === 1 ? ' cell' : ' cells') + ' to go' }))));
+  }
+  var ul = $('#levels'); ul.innerHTML = '';
+  LEVELS.forEach(function (l, n) {
+    var g = el('div', { class: 'glyph', 'aria-hidden': 'true' });
+    for (var i = 0; i < 9; i++) g.appendChild(el('i', { class: i <= n ? 'on' : '' }));
+    var s = stats[l.key];
+    ul.appendChild(el('li', null, el('button', { class: 'level', 'data-level': l.key, on: { click: function () { askNew(l.key); } } }, g,
+      el('div', null, el('b', { text: l.name }), el('span', { text: l.blurb })), el('em', { text: s && s.best ? 'Best ' + fmtTime(s.best) : '' }))));
+  });
+}
+function show(name) {
+  screen = name;
+  $('#home').hidden = name !== 'home'; $('#game').hidden = name !== 'game';
+  if (name === 'home') renderHome();
+}
+
+/* ---------- sheets ---------- */
+var sheetOnClose = null;
+function openSheet(title, nodes, onClose) {
+  var sheet = $('#sheet'); sheet.innerHTML = ''; sheet.scrollTop = 0;
+  sheet.appendChild(el('div', { class: 'sheet-head' }, el('h2', { text: title }),
+    el('button', { class: 'icon-btn', id: 'sheet-close', 'aria-label': 'Close', on: { click: closeSheet } }, svg('M6 6l12 12M18 6L6 18'))));
+  nodes.forEach(function (n) { if (n) sheet.appendChild(n); });
+  sheetOnClose = onClose || null;
+  $('#backdrop').hidden = false;
+}
+function closeSheet() { var f = sheetOnClose; sheetOnClose = null; $('#backdrop').hidden = true; if (f) f(); }
+function svg(path) { var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); var p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', path); s.appendChild(p); return s; }
+var toastTimer = null;
+function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2600); }
+
+function facts(pairs) { var dl = el('dl', { class: 'facts' }); pairs.forEach(function (p) { dl.appendChild(el('dt', { text: p[0] })); dl.appendChild(el('dd', { text: p[1] })); }); return dl; }
+function winSheet(record) {
+  var l = levelOf(game), s = st(game.level);
+  openSheet('Solved', [
+    el('p', { text: record && s.won > 1 ? 'A new best time for ' + l.name + '.' : (!game.mistakes && !game.hints ? 'No mistakes and no hints.' : 'Nicely done.') }),
+    facts([['Time', fmtTime(game.elapsed)], ['Mistakes', settings.check === 'solution' ? String(game.mistakes) : 'Not counted'], ['Hints', String(game.hints)],
+      ['Hardest step', E.TECH_BY_ID[game.meta.hardest].name], ['Winning streak', String(s.streak)]]),
+    el('button', { class: 'btn primary', id: 'win-next', text: 'New ' + l.name + ' puzzle', on: { click: function () { startNew(game.level); } } }),
+    el('button', { class: 'btn', id: 'win-home', text: 'Choose another level', on: { click: function () { closeSheet(); show('home'); } } })
+  ]);
+}
+function loseSheet() {
+  if (!game || game.status !== 'lost') return;
+  var l = levelOf(game);
+  openSheet('Out of mistakes', [
+    el('p', { text: 'That was mistake ' + game.mistakes + ' of ' + settings.limit + '. You can change or switch off the limit in Settings.' }),
+    el('button', { class: 'btn primary', id: 'lose-retry', text: 'Try this puzzle again', on: { click: restart } }),
+    el('button', { class: 'btn', id: 'lose-new', text: 'New ' + l.name + ' puzzle', on: { click: function () { startNew(game.level); } } }),
+    el('button', { class: 'btn', id: 'lose-continue', text: 'Keep going without a limit', on: { click: function () { game.status = 'playing'; game.freed = true; saveGame(); closeSheet(); renderGame(); } } })
+  ]);
+}
+function menuItem(id, label, path, fn) { return el('button', { class: 'menu-item', id: id, on: { click: fn } }, svg(path), label); }
+function moreSheet() {
+  openSheet(levelOf(game).name + ' puzzle', [
+    menuItem('m-fill', 'Fill in all notes', 'M4 4h16v16H4zM9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16', function () { closeSheet(); if (inPlay()) { fillNotes(); toast('Notes filled in.'); } }),
+    menuItem('m-clear', 'Clear all notes', 'M4 4h16v16H4zM9 9l6 6M15 9l-6 6', function () { closeSheet(); if (inPlay()) clearNotes(); }),
+    menuItem('m-restart', 'Restart this puzzle', 'M4 12a8 8 0 108-8H7M10 1L7 4l3 3', function () {
+      openSheet('Restart this puzzle?', [el('p', { text: 'Your digits, notes and time will be cleared.' }),
+        el('button', { class: 'btn primary', id: 'restart-yes', text: 'Restart', on: { click: restart } }), el('button', { class: 'btn', text: 'Keep playing', on: { click: closeSheet } })]);
+    }),
+    menuItem('m-new', 'New puzzle', 'M12 5v14M5 12h14', function () { levelSheet(); }),
+    menuItem('m-about', 'About this puzzle', 'M12 11v6M12 7.5v.5M12 3a9 9 0 100 18 9 9 0 000-18z', aboutSheet),
+    menuItem('m-settings', 'Settings', 'M4 7h10M18 7h2M4 17h2M10 17h10M16 5v4M8 15v4', settingsSheet)
+  ]);
+}
+function levelSheet() {
+  var nodes = LEVELS.map(function (l) { return el('button', { class: 'btn', 'data-level': l.key, text: l.name, on: { click: function () { askNew(l.key); } } }); });
+  openSheet('New puzzle', nodes);
+}
+function aboutSheet() {
+  var m = game.meta, list = el('ul', { class: 'plain' });
+  E.TECHS.forEach(function (t) { if (m.counts[t.id]) list.appendChild(el('li', { text: t.name + ' × ' + m.counts[t.id] })); });
+  openSheet('About this puzzle', [
+    facts([['Level', levelOf(game).name], ['Givens', String(m.givenCount)], ['Difficulty score', m.score.toLocaleString('en-GB')], ['Solutions', 'Exactly one'], ['Puzzle number', (m.seed >>> 0).toString(16).toUpperCase()]]),
+    el('h3', { text: 'Steps a careful solver needs' }), list
+  ]);
+}
+function howSheet() {
+  var ul = el('ul', { class: 'plain' });
+  LEVELS.forEach(function (l) { ul.appendChild(el('li', null, el('b', { text: l.name + '. ' }), l.blurb)); });
+  openSheet('How difficulty is measured', [
+    el('p', { text: 'The number of givens is a poor guide to how hard a puzzle feels. What matters is the hardest technique you need, and how often you need it.' }),
+    el('p', { text: 'Every new puzzle is solved by a built-in solver that works like a person: it always tries the easiest technique first. The level is set by the hardest technique it was forced to use, and a score adds up the cost of every step.' }),
+    ul,
+    el('p', { class: 'dim', text: 'Each puzzle has exactly one solution and never needs guessing. It is also compared with the last 20 puzzles you were given, so the same grid, pattern or mix of digits does not come back.' })
+  ]);
+}
+function statsSheet() {
+  var table = el('table', { class: 'stats' }), head = el('tr');
+  ['Level', 'Played', 'Won', 'Best', 'Average', 'Streak'].forEach(function (h) { head.appendChild(el('th', { text: h })); });
+  table.appendChild(head);
+  var any = false;
+  LEVELS.forEach(function (l) {
+    var s = stats[l.key] || { played: 0, won: 0, best: 0, total: 0, streak: 0 }, tr = el('tr');
+    if (s.played) any = true;
+    [l.name, s.played, s.won, s.best ? fmtTime(s.best) : '–', s.won ? fmtTime(s.total / s.won) : '–', s.streak].forEach(function (v) { tr.appendChild(el('td', { text: String(v) })); });
+    table.appendChild(tr);
+  });
+  openSheet('Statistics', [any ? null : el('p', { class: 'dim', text: 'Nothing yet. Finish a puzzle and your times appear here.' }), table,
+    el('button', { class: 'btn danger', id: 'stats-reset', text: 'Reset statistics', on: { click: function () {
+      openSheet('Reset statistics?', [el('p', { text: 'All times, wins and streaks will be cleared. Your current puzzle is kept.' }),
+        el('button', { class: 'btn primary', id: 'stats-reset-yes', text: 'Reset', on: { click: function () { stats = {}; saveStats(); closeSheet(); renderHome(); toast('Statistics reset.'); } } }),
+        el('button', { class: 'btn', text: 'Cancel', on: { click: statsSheet } })]);
+    } } })]);
+}
+function seg(id, options, value, onPick) {
+  var wrap = el('div', { class: 'seg', id: id });
+  options.forEach(function (o) {
+    wrap.appendChild(el('button', { 'data-v': String(o[0]), 'aria-pressed': o[0] === value ? 'true' : 'false', text: o[1], on: { click: function () { onPick(o[0]); } } }));
+  });
+  return wrap;
+}
+function toggleRow(id, key, title, desc) {
+  var sw = el('button', { class: 'switch', id: id, role: 'switch', 'aria-checked': settings[key] ? 'true' : 'false', 'aria-label': title });
+  sw.addEventListener('click', function () { settings[key] = !settings[key]; sw.setAttribute('aria-checked', settings[key] ? 'true' : 'false'); saveSettings(); if (key === 'input') armed = 0; if (game) renderGame(); });
+  return el('div', { class: 'row' }, el('div', null, el('b', { text: title }), desc ? el('span', { text: desc }) : null), sw);
+}
+function settingsSheet() {
+  var keep = $('#sheet').scrollTop;
+  function again() { saveSettings(); applyTheme(); if (game && screen === 'game') renderGame(); settingsSheet(); $('#sheet').scrollTop = keep; }
+  var sw = el('div', { class: 'swatches', id: 'themes' });
+  THEMES.forEach(function (t) {
+    var probe = el('i', { 'data-theme': t.id, text: '5' });
+    probe.style.cssText = 'background:var(--cell);color:var(--pen);border-color:var(--page)';
+    sw.appendChild(el('button', { class: 'swatch', 'data-v': t.id, 'aria-pressed': settings.theme === t.id ? 'true' : 'false', on: { click: function () { settings.theme = t.id; keep = $('#sheet').scrollTop; again(); } } }, probe, t.name));
+  });
+  var pens = el('div', { class: 'pens', id: 'pens' }), dark = themeObj().dark;
+  PENS.forEach(function (p) {
+    var b = el('button', { 'data-v': p.id, 'aria-label': p.name, 'aria-pressed': settings.pen === p.id ? 'true' : 'false', on: { click: function () { settings.pen = p.id; keep = $('#sheet').scrollTop; again(); } } });
+    b.style.background = p.id === 'theme' ? 'conic-gradient(var(--given) 0 50%, var(--cell) 0)' : (dark ? p.dark : p.light);
+    pens.appendChild(b);
+  });
+  var checkNote = { off: 'Nothing is checked, like pencil and paper.', conflicts: 'A digit turns red when it repeats in its row, column or box.', solution: 'A wrong digit turns red straight away and counts as a mistake.' }[settings.check];
+  var nodes = [
+    el('h3', { text: 'Background' }), sw,
+    el('h3', { text: 'Your digits' }),
+    seg('s-digits', [['weight', 'Lighter'], ['colour', 'Coloured']], settings.digits, function (v) { settings.digits = v; keep = $('#sheet').scrollTop; again(); }),
+    el('p', { class: 'dim', text: settings.digits === 'colour' ? 'Your digits take the accent colour. Givens stay bold.' : 'Givens are heavy and your digits are light, in the same colour.' }),
+    el('h3', { text: 'Accent colour' }), pens,
+    el('p', { class: 'dim', text: 'Used for the keypad, the selection and highlighted notes' + (settings.digits === 'colour' ? ', and for your digits.' : '.') }),
+    el('h3', { text: 'Checking' }),
+    seg('s-check', [['off', 'None'], ['conflicts', 'Duplicates'], ['solution', 'Every digit']], settings.check, function (v) { settings.check = v; keep = $('#sheet').scrollTop; again(); }),
+    el('p', { class: 'dim', text: checkNote })
+  ];
+  if (settings.check === 'solution') {
+    nodes.push(el('h3', { text: 'Mistakes allowed' }));
+    nodes.push(seg('s-limit', [[0, 'No limit'], [1, '1'], [3, '3'], [5, '5']], settings.limit, function (v) { settings.limit = v; keep = $('#sheet').scrollTop; again(); }));
+    nodes.push(el('p', { class: 'dim', text: settings.limit ? 'The puzzle ends when you reach ' + settings.limit + (settings.limit === 1 ? ' mistake.' : ' mistakes.') : 'Mistakes are counted but never end the puzzle.' }));
+  }
+  nodes.push(el('h3', { text: 'Entering digits' }));
+  nodes.push(seg('s-input', [['cell', 'Cell first'], ['digit', 'Digit first']], settings.input, function (v) { settings.input = v; armed = 0; keep = $('#sheet').scrollTop; again(); }));
+  nodes.push(el('p', { class: 'dim', text: settings.input === 'cell' ? 'Tap a cell, then a digit.' : 'Tap a digit to hold it, then tap every cell it goes in.' }));
+  nodes.push(el('h3', { text: 'Help on the board' }));
+  nodes.push(toggleRow('s-peers', 'hlPeers', 'Highlight row, column and box', 'Shades the cells that share a unit with the one you picked.'));
+  nodes.push(toggleRow('s-same', 'hlSame', 'Highlight matching digits', 'Also marks the same digit inside your notes.'));
+  nodes.push(toggleRow('s-auto', 'autoNotes', 'Tidy notes automatically', 'Placing a digit removes it from notes in the same row, column and box.'));
+  nodes.push(toggleRow('s-start', 'startNotes', 'Start with notes filled in', 'Every new puzzle opens with all candidates pencilled in.'));
+  nodes.push(toggleRow('s-fade', 'fadeDone', 'Fade finished digits', 'A digit that is on the board nine times is dimmed on the keypad.'));
+  nodes.push(toggleRow('s-timer', 'timer', 'Show the timer', 'Time is still recorded for your statistics when hidden.'));
+  openSheet('Settings', nodes);
+}
+
+/* ---------- clock ---------- */
+var lastTick = Date.now(), lastSave = 0;
+setInterval(function () {
+  var now = Date.now(), dt = Math.min(now - lastTick, 1000); lastTick = now;
+  if (!inPlay() || paused || screen !== 'game' || document.hidden || !$('#backdrop').hidden) return;
+  game.elapsed += dt;
+  $('#g-timer').textContent = fmtTime(game.elapsed);
+  if (now - lastSave > 5000) { lastSave = now; saveGame(); }
+}, 250);
+document.addEventListener('visibilitychange', function () { lastTick = Date.now(); if (document.hidden && game) saveGame(); });
+window.addEventListener('pagehide', function () { if (game) saveGame(); });
+
+/* ---------- wiring ---------- */
+buildBoard(); applyTheme();
+$('#home-stats').addEventListener('click', statsSheet);
+$('#home-settings').addEventListener('click', settingsSheet);
+$('#home-how').addEventListener('click', howSheet);
+$('#g-back').addEventListener('click', function () { if (busy) return; paused = false; hintState = null; if (game) saveGame(); show('home'); });
+$('#g-pause').addEventListener('click', function () { if (!inPlay()) return; paused = !paused; hintState = null; renderGame(); });
+$('#g-more').addEventListener('click', function () { if (game && !busy) moreSheet(); });
+$('#t-undo').addEventListener('click', undo);
+$('#t-redo').addEventListener('click', redo);
+$('#t-erase').addEventListener('click', erase);
+$('#t-notes').addEventListener('click', function () { if (!inPlay()) return; noting = !noting; renderGame(); });
+$('#t-hint').addEventListener('click', askHint);
+$('#backdrop').addEventListener('click', function (e) { if (e.target === this) closeSheet(); });
+document.addEventListener('keydown', function (e) {
+  if (screen !== 'game' || !inPlay() || !$('#backdrop').hidden) return;
+  var k = e.key;
+  if (k >= '1' && k <= '9') { if (settings.input === 'digit') tapKey(+k); else if (sel >= 0) { if (noting) toggleNote(sel, +k); else placeDigit(sel, +k); } }
+  else if (k === 'Backspace' || k === 'Delete' || k === '0') erase();
+  else if (k === 'n' || k === 'N') { noting = !noting; renderGame(); }
+  else if ((k === 'z' || k === 'Z') && (e.ctrlKey || e.metaKey)) { if (e.shiftKey) redo(); else undo(); }
+  else if (k === 'ArrowUp' || k === 'ArrowDown' || k === 'ArrowLeft' || k === 'ArrowRight') {
+    if (sel < 0) sel = 40;
+    else if (k === 'ArrowUp' && ROW[sel] > 0) sel -= 9; else if (k === 'ArrowDown' && ROW[sel] < 8) sel += 9;
+    else if (k === 'ArrowLeft' && COL[sel] > 0) sel -= 1; else if (k === 'ArrowRight' && COL[sel] < 8) sel += 1;
+    renderGame();
+  } else return;
+  e.preventDefault();
+});
+
+// a saved game from an older or damaged save is dropped rather than trusted
+if (game && !(game.givens && game.solution && game.values && game.values.length === 81 && E.isValidSolution(game.solution))) { game = null; saveGame(); }
+show('home');
+LEVELS.forEach(function (l, n) { setTimeout(function () { stockSpare(l.key); }, 600 + n * 400); });
+
+window.__sudoku = { get game() { return game; }, get settings() { return settings; }, get stats() { return stats; }, get history() { return history; }, get spare() { return spare; }, get sel() { return sel; }, E: E };
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { }); });
+</script>
+</body>
+</html>
