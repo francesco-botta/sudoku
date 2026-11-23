@@ -20,37 +20,37 @@
 :root{
   --page:#E8ECF1;--surface:#F7F9FB;--ink:#18212D;--dim:#525E6F;--line:#CDD4DD;
   --cell:#FCFDFE;--grid-thin:#B9C2CE;--grid-thick:#2A3442;--given:#18212D;--pen:#1A56C4;--note:#4A5768;
-  --sel:#FFE597;--peer:#E9EDF3;--same:#D9E6FB;--err:#C4202E;--err-bg:#FBDADD;--key:#E2E7EE;--hint:#D6F0DD;--hint-ring:#1E8A45;
+  --sel:#FFD54A;--peer:#E9EDF3;--same:#A6CCFF;--err:#C4202E;--err-bg:#FBDADD;--key:#E2E7EE;--hint:#D6F0DD;--hint-ring:#1E8A45;
 }
 [data-theme="linen"]{
   --page:#ECE4D6;--surface:#F6F0E3;--ink:#2E261D;--dim:#5F5446;--line:#D6CBB8;
   --cell:#FBF7EC;--grid-thin:#CFC4B2;--grid-thick:#4A3F33;--given:#2E261D;--pen:#0A655B;--note:#5F5446;
-  --sel:#FBE8B0;--peer:#F2EBDD;--same:#DDEDE7;--err:#B3261E;--err-bg:#F6D5CF;--key:#E7DFCF;--hint:#DDEBC6;--hint-ring:#4E7A1E;
+  --sel:#F5C84B;--peer:#F2EBDD;--same:#9FD8C5;--err:#B3261E;--err-bg:#F6D5CF;--key:#E7DFCF;--hint:#DDEBC6;--hint-ring:#4E7A1E;
 }
 [data-theme="sage"]{
   --page:#DCE6DE;--surface:#EEF4EF;--ink:#1E2B25;--dim:#495A52;--line:#C2D0C6;
   --cell:#F7FAF7;--grid-thin:#B5C5BA;--grid-thick:#2C4037;--given:#1E2B25;--pen:#98400F;--note:#4A5B53;
-  --sel:#FCE9B4;--peer:#E7EFE9;--same:#F9E6D9;--err:#B3202C;--err-bg:#F7D6D8;--key:#D8E3DC;--hint:#DFF0F8;--hint-ring:#1F6F99;
+  --sel:#F7CF5E;--peer:#E7EFE9;--same:#F2B894;--err:#B3202C;--err-bg:#F7D6D8;--key:#D8E3DC;--hint:#DFF0F8;--hint-ring:#1F6F99;
 }
 [data-theme="contrast"]{
   --page:#FFFFFF;--surface:#FFFFFF;--ink:#000000;--dim:#3D3D3D;--line:#9A9A9A;
   --cell:#FFFFFF;--grid-thin:#8C8C8C;--grid-thick:#000000;--given:#000000;--pen:#0038C7;--note:#2B2B2B;
-  --sel:#FFEC8A;--peer:#ECECEC;--same:#E0EAFF;--err:#C40018;--err-bg:#FFD9DE;--key:#E6E6E6;--hint:#D2F5D8;--hint-ring:#00702A;
+  --sel:#FFD900;--peer:#ECECEC;--same:#9CC2FF;--err:#C40018;--err-bg:#FFD9DE;--key:#E6E6E6;--hint:#D2F5D8;--hint-ring:#00702A;
 }
 [data-theme="dusk"]{
   --page:#121926;--surface:#1A2333;--ink:#E8EDF5;--dim:#94A1B5;--line:#2F3A4E;
   --cell:#1B2434;--grid-thin:#34405A;--grid-thick:#8793A8;--given:#E8EDF5;--pen:#8FBCFF;--note:#B4BFD0;
-  --sel:#2A3D63;--peer:#222C3F;--same:#2A3B5C;--err:#FF7B86;--err-bg:#4A2029;--key:#253044;--hint:#1F4634;--hint-ring:#5FD08A;
+  --sel:#3A61B0;--peer:#222C3F;--same:#30529A;--err:#FF7B86;--err-bg:#4A2029;--key:#253044;--hint:#1F4634;--hint-ring:#5FD08A;
 }
 [data-theme="chalk"]{
   --page:#1D2B26;--surface:#24362F;--ink:#F0EEE2;--dim:#A3B5AB;--line:#3A4F46;
   --cell:#24362F;--grid-thin:#3F564C;--grid-thick:#9DB0A6;--given:#F0EEE2;--pen:#FFD27A;--note:#C6D3CB;
-  --sel:#36524A;--peer:#2A3E36;--same:#324B41;--err:#FF8A7A;--err-bg:#55302B;--key:#2F453C;--hint:#25405A;--hint-ring:#7FC4F0;
+  --sel:#47705C;--peer:#2A3E36;--same:#3D5F50;--err:#FF8A7A;--err-bg:#55302B;--key:#2F453C;--hint:#25405A;--hint-ring:#7FC4F0;
 }
 [data-theme="black"]{
   --page:#000000;--surface:#101012;--ink:#F2F2F3;--dim:#9A9AA0;--line:#2A2A2E;
   --cell:#0B0B0D;--grid-thin:#2C2C31;--grid-thick:#7A7A80;--given:#F2F2F3;--pen:#6FD0FF;--note:#B6B6BD;
-  --sel:#23364F;--peer:#17171B;--same:#1E2A38;--err:#FF6B6B;--err-bg:#3D1717;--key:#1B1B1F;--hint:#16382A;--hint-ring:#4FD08A;
+  --sel:#2F5E9E;--peer:#17171B;--same:#1F3F6B;--err:#FF6B6B;--err-bg:#3D1717;--key:#1B1B1F;--hint:#16382A;--hint-ring:#4FD08A;
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -106,6 +106,11 @@ h2.section{font-size:15px;font-weight:600;color:var(--dim);margin:26px 0 0;paddi
 .cell.user{color:var(--given);font-weight:300}
 [data-digits="colour"] .cell.given{font-weight:700}
 [data-digits="colour"] .cell.user{color:var(--pen);font-weight:500}
+[data-digits] .cell.same,[data-digits] .cell.sel{color:var(--given)}
+[data-digits] .cell.err{color:var(--err)}
+[data-digits] .cell.given.err{color:var(--given)}
+.cell.sel .notes{color:var(--given)}
+[data-digits] .cell.sel.err{background:var(--err-bg)}
 .cell.peer{background:var(--peer)}
 .cell.same{background:var(--same)}
 .cell.err{color:var(--err);background:var(--err-bg)}
@@ -146,14 +151,15 @@ h2.section{font-size:15px;font-weight:600;color:var(--dim);margin:26px 0 0;paddi
 .tool.on{background:var(--pen);color:var(--cell)}
 .tool.on svg{color:var(--cell)}
 .tool:disabled{opacity:.32}
-.pad{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
-.key{height:clamp(54px,9.5vh,76px);border-radius:10px;background:var(--key);color:var(--pen);font-size:28px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1;border:1.5px solid transparent}
-.key small{font-size:11.5px;color:var(--dim);font-weight:500;line-height:1}
+.pad{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.key{grid-column:span 2;position:relative;height:clamp(46px,8.4vh,72px);border-radius:12px;background:var(--key);color:var(--pen);font-size:32px;font-weight:600;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid transparent}
+.key:nth-child(6){grid-column:2 / span 2}
+.key small{position:absolute;top:5px;right:8px;font-size:12.5px;color:var(--dim);font-weight:500;line-height:1}
 .key:active{background:var(--same)}
 .key.armed{background:var(--pen);color:var(--cell)}
 .key.armed small{color:var(--cell)}
 .key.done{opacity:.25}
-.pad.noting .key{background:transparent;border:1.5px dashed var(--pen);font-size:22px}
+.pad.noting .key{background:transparent;border:1.5px dashed var(--pen);font-size:24px}
 .pad.noting .key.armed{background:var(--pen)}
 .hintbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin:6px 10px 12px}
 .hintbox h3{margin:0 0 6px;font-size:18px}
